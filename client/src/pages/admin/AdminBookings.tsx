@@ -137,6 +137,9 @@ const AdminBookings: React.FC = () => {
                 {active.date} at {active.time}
               </p>
               <p>
+                <span className="text-nala-muted">Reference:</span> {active.reference || '—'}
+              </p>
+              <p>
                 <span className="text-nala-muted">Phone:</span> {active.phone}
               </p>
               <p>
@@ -149,12 +152,33 @@ const AdminBookings: React.FC = () => {
                 <span className="text-nala-muted">Message:</span> {active.message || '—'}
               </p>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label-nala">Reschedule date</label>
+                  <input
+                    type="date"
+                    className="input-nala"
+                    value={active.date}
+                    onChange={(e) => void updateBooking(active.id, { date: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="label-nala">Time</label>
+                  <input
+                    type="time"
+                    className="input-nala"
+                    value={active.time}
+                    onChange={(e) => void updateBooking(active.id, { time: e.target.value })}
+                  />
+                </div>
+              </div>
+
               <label className="label-nala">Status</label>
               <select
                 className="input-nala"
                 value={active.status}
                 onChange={(e) =>
-                  updateBooking(active.id, { status: e.target.value as BookingStatus })
+                  void updateBooking(active.id, { status: e.target.value as BookingStatus })
                 }
               >
                 {statuses.map((s) => (

@@ -1,10 +1,10 @@
 import React from 'react';
-import { ChevronRight, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 
-interface BreadcrumbItem {
+export interface BreadcrumbItem {
   label: string;
-  href?: string;
-  icon?: React.ReactNode;
+  to?: string;
 }
 
 interface BreadcrumbsProps {
@@ -13,38 +13,36 @@ interface BreadcrumbsProps {
 }
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' }) => {
+  if (!items.length) return null;
+
   return (
-    <div className={`flex items-center py-4 overflow-x-auto whitespace-nowrap ${className}`}>
-      {items.map((item, index) => (
-        <React.Fragment key={index}>
-          {index === 0 ? (
-            <a 
-              href={item.href || '#'} 
-              className="text-gray-600 dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
-            >
-              {item.icon || <Home className="w-5 h-5" />}
-            </a>
-          ) : (
-            <a 
-              href={item.href || '#'} 
-              className={`hover:underline transition-colors ${
-                index === items.length - 1 
-                  ? 'text-blue-600 dark:text-blue-400' 
-                  : 'text-gray-600 dark:text-gray-200'
-              }`}
-            >
-              {item.label}
-            </a>
-          )}
-          
-          {index < items.length - 1 && (
-            <ChevronRight className="mx-2 text-gray-500 dark:text-gray-300 w-4 h-4 flex-shrink-0" />
-          )}
-        </React.Fragment>
-      ))}
-    </div>
+    <nav aria-label="Breadcrumb" className={`mb-6 ${className}`}>
+      <ol className="flex flex-wrap items-center gap-1.5 text-xs text-nala-muted">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          return (
+            <li key={`${item.label}-${index}`} className="flex items-center gap-1.5">
+              {index > 0 && (
+                <ChevronRight className="h-3 w-3 shrink-0 opacity-50" aria-hidden />
+              )}
+              {isLast || !item.to ? (
+                <span
+                  className={isLast ? 'text-nala-charcoal' : undefined}
+                  aria-current={isLast ? 'page' : undefined}
+                >
+                  {item.label}
+                </span>
+              ) : (
+                <Link to={item.to} className="transition hover:text-nala-charcoal">
+                  {item.label}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 };
 
 export default Breadcrumbs;
-

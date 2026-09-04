@@ -49,6 +49,15 @@ const AdminSettings: React.FC = () => {
           </p>
         </div>
         <div>
+          <label className="label-nala">Admin email</label>
+          <input
+            type="email"
+            className="input-nala"
+            value={form.adminEmail || ''}
+            onChange={(e) => setForm({ ...form, adminEmail: e.target.value })}
+          />
+        </div>
+        <div>
           <label className="label-nala">Admin password</label>
           <input
             type="password"

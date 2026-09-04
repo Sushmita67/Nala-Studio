@@ -1,10 +1,15 @@
 /** Configurable Formspree endpoint ID — also editable in Admin → Settings */
 export const DEFAULT_FORMSPREE_FORM_ID = 'manppgvr';
 
-export const STORAGE_KEY = 'nala-studio-data-v1';
-export const ADMIN_SESSION_KEY = 'nala-admin-session';
+/** Bump when seed shape / public UI changes so stale localStorage refreshes */
+export const STORAGE_KEY = 'nala-studio-data-v3';
+export const ADMIN_SESSION_KEY = 'nala-admin-session-v3';
 
+export const DEFAULT_ADMIN_EMAIL = 'owner@nalastudio.com.np';
 export const DEFAULT_ADMIN_PASSWORD = 'nala2026';
+
+/** Session length for owner auth (ms) — 12 hours */
+export const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 export const BRAND = {
   name: 'NALA Studio',

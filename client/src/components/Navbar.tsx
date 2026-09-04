@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import Logo from './Logo';
-import { BRAND } from '../config';
 import { useStudio } from '../context/StudioContext';
 
 const navItems = [
-  { to: '/', label: 'HOME', end: true },
-  { to: '/about', label: 'ABOUT' },
-  { to: '/services', label: 'SERVICES' },
-  { to: '/gallery', label: 'GALLERY' },
-  { to: '/courses', label: 'COURSES' },
-  { to: '/#reviews', label: 'REVIEWS', hash: true },
-  { to: '/contact', label: 'CONTACT' },
+  { to: '/about', label: 'About' },
+  { to: '/services', label: 'Services' },
+  { to: '/gallery', label: 'Gallery' },
+  { to: '/courses', label: 'Academy' },
+  { to: '/contact', label: 'Contact' },
 ];
 
 const Navbar: React.FC = () => {
@@ -20,119 +18,161 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { content } = useStudio();
+  const menuId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const openRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    window.addEventListener('scroll', onScroll);
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => setOpen(false), [location]);
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
-  const handleHashNav = (hash: string) => {
-    if (location.pathname === '/') {
-      const el = document.querySelector(hash);
-      el?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+      openRef.current?.focus();
+    };
+  }, [open]);
+
+  const solid = scrolled || open || location.pathname !== '/';
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled || open
+      className={`fixed inset-x-0 top-0 z-header transition-[background,box-shadow,border-color] duration-250 ${
+        solid
           ? 'border-b border-nala-border/70 bg-nala-ivory/95 shadow-soft backdrop-blur-md'
-          : 'bg-transparent'
+          : 'border-b border-transparent bg-transparent'
       }`}
     >
-      <div className="container-nala flex items-center justify-between py-3 lg:py-4">
-        <Link to="/" className="relative z-10 flex items-center">
+      <div className="container-nala flex h-[var(--header-h)] items-center justify-between gap-6">
+        <Link to="/" className="relative z-10 flex shrink-0 items-center" aria-label="NALA Studio home">
           <Logo size="navbar" />
         </Link>
 
-        <nav className="hidden items-center gap-7 xl:gap-8 lg:flex">
-          {navItems.map((item) =>
-            item.hash ? (
-              <Link
-                key={item.label}
-                to="/#reviews"
-                onClick={() => handleHashNav('#reviews')}
-                className="text-[11px] font-medium uppercase tracking-[0.2em] text-nala-muted transition hover:text-nala-charcoal"
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  `text-[11px] font-medium uppercase tracking-[0.2em] transition ${
-                    isActive ? 'text-nala-charcoal' : 'text-nala-muted hover:text-nala-charcoal'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            )
-          )}
+        <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `nav-link ${isActive ? 'nav-link-active' : ''}`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
 
-        <div className="hidden items-center gap-4 lg:flex">
+        <div className="hidden items-center gap-5 lg:flex">
           <a
             href={`tel:${content.phone}`}
-            className="text-[11px] font-medium tracking-[0.12em] text-nala-muted hover:text-nala-charcoal"
+            className="text-sm tracking-wide text-nala-muted transition hover:text-nala-charcoal"
           >
             {content.phone}
           </a>
           <Link to="/book" className="btn-primary !px-5 !py-2.5">
-            Book Now
+            Book
           </Link>
         </div>
 
         <button
+          ref={openRef}
           type="button"
-          className="relative z-10 rounded-sm p-2 text-nala-charcoal lg:hidden"
+          className="relative z-10 -mr-2 rounded-sm p-2 text-nala-charcoal lg:hidden"
           aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          aria-controls={menuId}
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {open ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}
         </button>
       </div>
 
-      {open && (
-        <div className="border-t border-nala-border bg-nala-ivory lg:hidden">
-          <div className="container-nala flex flex-col gap-1 py-4">
-            {navItems.map((item) =>
-              item.hash ? (
-                <Link
-                  key={item.label}
-                  to="/#reviews"
-                  onClick={() => handleHashNav('#reviews')}
-                  className="py-3 text-sm uppercase tracking-[0.18em] text-nala-charcoal"
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id={menuId}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-overlay bg-nala-ivory lg:hidden"
+          >
+            <div className="container-nala flex h-[var(--header-h)] items-center justify-between">
+              <Link to="/" onClick={() => setOpen(false)} aria-label="NALA Studio home">
+                <Logo size="navbar" />
+              </Link>
+              <button
+                ref={closeRef}
+                type="button"
+                className="-mr-2 rounded-sm p-2"
+                aria-label="Close menu"
+                onClick={() => setOpen(false)}
+              >
+                <X className="h-6 w-6" aria-hidden />
+              </button>
+            </div>
+
+            <nav className="container-nala flex flex-col gap-1 pb-10 pt-6" aria-label="Mobile primary">
+              {navItems.map((item, i) => (
+                <motion.div
+                  key={item.to}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.04 * i, duration: 0.25 }}
                 >
-                  {item.label}
+                  <NavLink
+                    to={item.to}
+                    className={({ isActive }) =>
+                      `block border-b border-nala-border/50 py-4 font-display text-3xl ${
+                        isActive ? 'text-nala-charcoal' : 'text-nala-muted'
+                      }`
+                    }
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label}
+                  </NavLink>
+                </motion.div>
+              ))}
+
+              <div className="mt-10 space-y-4">
+                <Link to="/book" className="btn-primary w-full" onClick={() => setOpen(false)}>
+                  Book an appointment
                 </Link>
-              ) : (
-                <NavLink
-                  key={item.label}
-                  to={item.to}
-                  end={item.end}
-                  className="py-3 text-sm uppercase tracking-[0.18em] text-nala-charcoal"
+                <a
+                  href={`tel:${content.phone}`}
+                  className="btn-secondary w-full"
+                  onClick={() => setOpen(false)}
                 >
-                  {item.label}
-                </NavLink>
-              )
-            )}
-            <a href={`tel:${content.phone}`} className="py-3 text-sm text-nala-muted">
-              {content.phone}
-            </a>
-            <Link to="/book" className="btn-primary mt-2 w-full">
-              Book Now
-            </Link>
-            <p className="pt-3 text-xs text-nala-muted">{BRAND.tagline}</p>
-          </div>
-        </div>
-      )}
+                  Call {content.phone}
+                </a>
+                <p className="pt-2 text-center text-sm text-nala-muted">
+                  Nails · Lashes · Makeup · Kathmandu
+                </p>
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

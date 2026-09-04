@@ -22,6 +22,7 @@ import AdminTestimonials from './pages/admin/AdminTestimonials';
 import AdminContent from './pages/admin/AdminContent';
 import AdminMedia from './pages/admin/AdminMedia';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminStudents from './pages/admin/AdminStudents';
 
 import PublicLayout from './components/PublicLayout';
 import Seo from './components/Seo';
@@ -131,6 +132,7 @@ function App() {
             <Route path="services" element={<AdminServices />} />
             <Route path="gallery" element={<AdminGallery />} />
             <Route path="courses" element={<AdminCourses />} />
+            <Route path="students" element={<AdminStudents />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
             <Route
               path="certificates"

@@ -1,37 +1,37 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { ADMIN_SESSION_KEY } from '../config';
-import { useStudio } from './StudioContext';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
+import { useAuthStore } from '../stores/useAuthStore';
 
 interface AdminAuthContextValue {
   isAdmin: boolean;
-  login: (password: string) => boolean;
+  session: ReturnType<typeof useAuthStore.getState>['session'];
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { settings } = useStudio();
-  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem(ADMIN_SESSION_KEY) === '1');
+  const session = useAuthStore((s) => s.session);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const loginStore = useAuthStore((s) => s.login);
+  const logoutStore = useAuthStore((s) => s.logout);
+  const hydrate = useAuthStore((s) => s.hydrate);
 
   useEffect(() => {
-    if (isAdmin) localStorage.setItem(ADMIN_SESSION_KEY, '1');
-    else localStorage.removeItem(ADMIN_SESSION_KEY);
-  }, [isAdmin]);
+    hydrate();
+  }, [hydrate]);
 
   const value = useMemo(
     () => ({
-      isAdmin,
-      login: (password: string) => {
-        if (password === settings.adminPassword) {
-          setIsAdmin(true);
-          return true;
-        }
-        return false;
+      isAdmin: isAuthenticated,
+      session,
+      login: async (email: string, password: string) => {
+        const result = await loginStore(email, password);
+        return result.ok;
       },
-      logout: () => setIsAdmin(false),
+      logout: () => logoutStore(),
     }),
-    [isAdmin, settings.adminPassword]
+    [isAuthenticated, session, loginStore, logoutStore]
   );
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;

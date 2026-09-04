@@ -1,412 +1,584 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
-import { useForm } from '@formspree/react';
+import { useForm as useFormspree } from '@formspree/react';
 import { useStudio } from '../context/StudioContext';
+import { useBookingStore } from '../stores/useBookingStore';
+import { bookingService } from '../services';
+import type { ServiceCategory } from '../types';
 
 interface BookingProps {
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
-const steps = [
-  'Choose a Service',
-  'Choose Your Date',
-  'Choose Preferred Time',
-  'Your Details',
-  'Confirm Appointment',
+const categories: { id: ServiceCategory; label: string }[] = [
+  { id: 'nails', label: 'Nails' },
+  { id: 'lashes', label: 'Lashes' },
+  { id: 'brows', label: 'Brows' },
+  { id: 'beauty', label: 'Beauty' },
+  { id: 'courses', label: 'Academy' },
+];
+
+const detailsSchema = z.object({
+  customerName: z.string().min(2, 'Please enter your name'),
+  phone: z
+    .string()
+    .min(9, 'Enter a valid phone number')
+    .refine((v) => {
+      const cleaned = v.replace(/[\s-]/g, '');
+      return /^(?:\+?977)?9\d{9}$/.test(cleaned) || /^0?\d{9,10}$/.test(cleaned);
+    }, 'Enter a valid Nepal phone number'),
+  email: z.string().email('Enter a valid email'),
+  notes: z.string().optional(),
+});
+
+type DetailsForm = z.infer<typeof detailsSchema>;
+
+const stepOrder = [
+  'category',
+  'services',
+  'staff',
+  'datetime',
+  'details',
+  'review',
+  'confirmed',
+] as const;
+
+const stepLabels = [
+  'Category',
+  'Services',
+  'Artist',
+  'Date & Time',
+  'Details',
+  'Review',
+  'Done',
 ];
 
 const Booking: React.FC<BookingProps> = ({ showToast }) => {
   const [searchParams] = useSearchParams();
-  const { activeServices, settings, formatPrice, formatDuration, addBooking } = useStudio();
-  const [state, handleSubmit] = useForm(settings.formspreeFormId || 'manppgvr');
-
-  const [step, setStep] = useState(1);
-  const [serviceId, setServiceId] = useState(searchParams.get('service') || '');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [artist, setArtist] = useState('');
+  const { activeServices, settings, formatDuration, addBooking, staff } = useStudio();
+  const [formspreeState, handleFormspree] = useFormspree(settings.formspreeFormId || 'manppgvr');
   const [submitting, setSubmitting] = useState(false);
-  const [succeeded, setSucceeded] = useState(false);
-  const submittedRef = useRef(false);
-
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const d = new Date();
     d.setDate(1);
     return d;
   });
 
-  const service = useMemo(
-    () => activeServices.find((s) => s.id === serviceId),
-    [activeServices, serviceId]
-  );
+  const {
+    step,
+    draft,
+    setStep,
+    setCategory,
+    toggleService,
+    setServices,
+    setStaff,
+    setDateTime,
+    setDetails,
+    setReference,
+    reset,
+  } = useBookingStore();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset: resetForm,
+  } = useForm<DetailsForm>({
+    resolver: zodResolver(detailsSchema),
+    defaultValues: {
+      customerName: draft.customerName,
+      phone: draft.phone,
+      email: draft.email,
+      notes: draft.notes,
+    },
+  });
+
+  // Prefill from ?service=
+  useEffect(() => {
+    const sid = searchParams.get('service');
+    if (!sid) return;
+    const svc = activeServices.find((s) => s.id === sid);
+    if (!svc) return;
+    setCategory(svc.category);
+    setServices([svc.id]);
+    setStep('staff');
+  }, [searchParams, activeServices, setCategory, setServices, setStep]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [step, succeeded]);
+  }, [step]);
 
-  useEffect(() => {
-    if (state.succeeded && !succeeded) {
-      setSucceeded(true);
-      setSubmitting(false);
-    }
-    if (state.errors && submitting) {
-      setSubmitting(false);
-      showToast('There was an error submitting your booking. Please try again.', 'error');
-    }
-  }, [state.succeeded, state.errors, succeeded, submitting, showToast]);
+  const selectedServices = useMemo(
+    () => activeServices.filter((s) => draft.serviceIds.includes(s.id)),
+    [activeServices, draft.serviceIds]
+  );
 
-  const isPastDate = (d: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const compare = new Date(d);
-    compare.setHours(0, 0, 0, 0);
-    return compare <= today;
+  const categoryServices = useMemo(() => {
+    if (!draft.category) return activeServices;
+    return activeServices.filter((s) => s.category === draft.category);
+  }, [activeServices, draft.category]);
+
+  const eligibleStaff = useMemo(() => {
+    if (!draft.serviceIds.length) return staff;
+    return staff.filter((m) =>
+      draft.serviceIds.every(
+        (sid) => !m.serviceIds.length || m.serviceIds.includes(sid)
+      )
+    );
+  }, [staff, draft.serviceIds]);
+
+  const availableSlots = useMemo(() => {
+    if (!draft.date) return [];
+    return bookingService.getAvailableSlots(
+      draft.date,
+      draft.noPreference ? null : draft.staffId,
+      settings.bookingTimeSlots
+    );
+  }, [draft.date, draft.staffId, draft.noPreference, settings.bookingTimeSlots]);
+
+  const stepIndex = stepOrder.indexOf(step);
+
+  const goNext = () => {
+    const next = stepOrder[Math.min(stepIndex + 1, stepOrder.length - 1)];
+    setStep(next);
   };
 
-  const getCalendarMatrix = (month: Date) => {
-    const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
-    const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0);
-    const matrix: Date[][] = [];
-    let current = new Date(firstDay);
-    current.setDate(current.getDate() - ((firstDay.getDay() + 6) % 7));
-    while (current <= lastDay || current.getDay() !== 1) {
-      const week: Date[] = [];
-      for (let i = 0; i < 7; i++) {
-        week.push(new Date(current));
-        current.setDate(current.getDate() + 1);
-      }
-      matrix.push(week);
-      if (current > lastDay && current.getDay() === 1) break;
-    }
-    return matrix;
+  const goBack = () => {
+    if (step === 'confirmed') return;
+    const prev = stepOrder[Math.max(stepIndex - 1, 0)];
+    setStep(prev);
   };
 
-  const toISODate = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-
-  const formatDisplayDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    const [y, m, d] = dateStr.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
+  const formatDisplayDate = (iso: string) => {
+    if (!iso) return '';
+    return new Date(`${iso}T12:00:00`).toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
       day: 'numeric',
       year: 'numeric',
     });
   };
 
-  const validatePhone = (value: string) => {
-    const cleaned = value.replace(/\s/g, '');
-    return /^(?:\+?977)?9\d{9}$/.test(cleaned) || /^0?\d{9,10}$/.test(cleaned);
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDow = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const cells: { date: string; day: number; disabled: boolean }[] = [];
+    for (let i = 0; i < firstDow; i++) cells.push({ date: '', day: 0, disabled: true });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateObj = new Date(year, month, d);
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(d).padStart(2, '0');
+      const iso = `${y}-${m}-${day}`;
+      cells.push({ date: iso, day: d, disabled: dateObj < today });
+    }
+    return cells;
+  }, [calendarMonth]);
+
+  const onDetailsSubmit = (values: DetailsForm) => {
+    setDetails({
+      customerName: values.customerName,
+      phone: values.phone,
+      email: values.email,
+      notes: values.notes || '',
+    });
+    setStep('review');
   };
 
-  const goNext = () => {
-    if (step === 1 && !serviceId) {
-      showToast('Please select a service', 'error');
-      return;
-    }
-    if (step === 2 && !date) {
-      showToast('Please select a date', 'error');
-      return;
-    }
-    if (step === 3 && !time) {
-      showToast('Please select a time', 'error');
-      return;
-    }
-    if (step === 4) {
-      if (!name.trim()) {
-        showToast('Please enter your full name', 'error');
-        return;
-      }
-      if (!validatePhone(phone)) {
-        showToast('Please enter a valid phone number', 'error');
-        return;
-      }
-      if (email.trim() && !email.includes('@')) {
-        showToast('Please enter a valid email address', 'error');
-        return;
-      }
-    }
-    setStep((s) => Math.min(5, s + 1));
-  };
-
-  const onConfirm = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (submittedRef.current || submitting || succeeded) return;
-    if (!service) {
-      showToast('Please select a service', 'error');
-      return;
-    }
-
-    submittedRef.current = true;
+  const confirmBooking = async () => {
+    if (!selectedServices.length || !draft.date || !draft.time) return;
     setSubmitting(true);
-
-    const payload = {
-      name: name.trim(),
-      email: email.trim() || 'not-provided@nalastudio.com.np',
-      phone: phone.trim(),
-      service: service.name,
-      servicePrice: service.price ?? service.priceLabel ?? 'On request',
-      serviceDuration: service.duration ?? service.durationLabel ?? 'Flexible',
-      appointmentDate: date,
-      appointmentTime: time,
-      appointmentDateTime: `${formatDisplayDate(date)} at ${time}`,
-      preferredArtist: artist.trim() || 'No preference',
-      message:
-        message.trim() ||
-        `Booking request for ${service.name} on ${date} at ${time}. Phone: ${phone}`,
-      _subject: `NALA Booking — ${service.name} — ${date} ${time}`,
-    };
-
     try {
-      await handleSubmit(payload);
-      addBooking({
-        serviceId: service.id,
-        serviceName: service.name,
-        date,
-        time,
-        customerName: name.trim(),
-        phone: phone.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        preferredArtist: artist.trim(),
-        totalPrice: service.price,
+      const serviceName = selectedServices.map((s) => s.name).join(' + ');
+      const staffMember = staff.find((s) => s.id === draft.staffId);
+      const preferredArtist = draft.noPreference
+        ? 'No preference'
+        : staffMember?.name || 'No preference';
+
+      const booking = await addBooking({
+        serviceIds: draft.serviceIds,
+        serviceId: draft.serviceIds[0],
+        serviceName,
+        date: draft.date,
+        time: draft.time,
+        customerName: draft.customerName,
+        phone: draft.phone,
+        email: draft.email,
+        message: draft.notes,
+        preferredArtist,
+        staffId: draft.noPreference ? null : draft.staffId,
+        totalPrice: null,
         status: 'pending',
       });
+
+      setReference(booking.reference);
+
+      const formData = new FormData();
+      formData.append('name', draft.customerName);
+      formData.append('email', draft.email);
+      formData.append('phone', draft.phone);
+      formData.append('service', serviceName);
+      formData.append('date', draft.date);
+      formData.append('time', draft.time);
+      formData.append('artist', preferredArtist);
+      formData.append('reference', booking.reference);
+      formData.append(
+        'message',
+        `Booking ${booking.reference}: ${serviceName} on ${draft.date} at ${draft.time}. Notes: ${draft.notes}`
+      );
+      formData.append('_subject', `NALA Booking — ${booking.reference}`);
+      await handleFormspree(formData);
+
+      setStep('confirmed');
+      showToast('Booking request submitted.', 'success');
     } catch {
-      submittedRef.current = false;
+      showToast('Could not complete booking. Please try again.', 'error');
+    } finally {
       setSubmitting(false);
-      showToast('There was an error submitting your booking. Please try again.', 'error');
     }
   };
 
-  if (succeeded || state.succeeded) {
-    return (
-      <div className="container-nala py-28">
-        <div className="mx-auto max-w-xl rounded-md border border-nala-border bg-nala-ivory p-8 text-center shadow-card">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-nala-cream text-nala-rose">
-            <Check className="h-7 w-7" />
-          </div>
-          <h1 className="font-display text-3xl text-nala-charcoal">Thank you!</h1>
-          <p className="mt-4 text-nala-muted">
-            Your appointment request has been received. NALA Studio will contact you shortly to
-            confirm your booking.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const startOver = () => {
+    reset();
+    resetForm();
+  };
 
   return (
-    <div className="bg-nala-soft pb-20 pt-28">
-      <div className="container-nala max-w-4xl">
-        <div className="mb-10 text-center">
-          <p className="section-label mb-3">Booking</p>
-          <h1 className="section-title">Request an appointment</h1>
-          <p className="mx-auto mt-3 max-w-lg text-nala-muted">
-            Tell us what you’d like and when suits you. The studio will confirm your booking by
-            phone.
-          </p>
-        </div>
+    <div className="container-nala py-10 pt-24 lg:py-16 lg:pt-28">
+      <div className="mx-auto max-w-3xl">
+        <p className="section-label mb-3">Book</p>
+        <h1 className="section-title mb-2">Book an appointment</h1>
+        <p className="prose-nala mb-8">
+          Choose your services, preferred artist and a time that works. Contact us for pricing.
+        </p>
 
-        <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
-          {steps.map((label, i) => {
-            const n = i + 1;
-            return (
-              <div key={label} className="flex items-center gap-2">
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium ${
-                    step >= n
-                      ? 'bg-nala-charcoal text-nala-ivory'
-                      : 'border border-nala-border text-nala-muted'
-                  }`}
-                >
-                  {step > n ? <Check className="h-4 w-4" /> : n}
-                </div>
-                <span className="hidden text-[11px] uppercase tracking-[0.12em] text-nala-muted sm:inline">
-                  {label}
-                </span>
-                {n < steps.length && <div className="mx-1 hidden h-px w-6 bg-nala-border sm:block" />}
-              </div>
-            );
-          })}
-        </div>
+        {/* Progress */}
+        <ol className="mb-10 flex flex-wrap gap-2">
+          {stepLabels.map((label, i) => (
+            <li
+              key={label}
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.12em] ${
+                i <= stepIndex
+                  ? 'bg-nala-charcoal text-nala-ivory'
+                  : 'bg-nala-mist text-nala-muted'
+              }`}
+            >
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-[10px]">
+                {i < stepIndex ? <Check className="h-3 w-3" /> : i + 1}
+              </span>
+              <span className="hidden sm:inline">{label}</span>
+            </li>
+          ))}
+        </ol>
 
-        <div className="rounded-md border border-nala-border bg-nala-ivory p-5 shadow-card sm:p-8">
-          {step === 1 && (
-            <div>
-              <h2 className="mb-6 font-display text-2xl">Choose a Service</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {activeServices.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setServiceId(item.id);
-                      setDate('');
-                      setTime('');
-                    }}
-                    className={`overflow-hidden rounded-md border text-left transition ${
-                      serviceId === item.id
-                        ? 'border-nala-charcoal shadow-soft'
-                        : 'border-nala-border hover:border-nala-nude'
-                    }`}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="aspect-[16/10] w-full object-cover"
-                    />
-                    <div className="p-4">
-                      <h3 className="font-display text-xl">{item.name}</h3>
-                      <div className="mt-2 flex items-center justify-between text-sm text-nala-muted">
-                        <span>{formatPrice(item.price, item.priceLabel)}</span>
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
-                          {formatDuration(item.duration, item.durationLabel)}
-                        </span>
-                      </div>
-                      <span className="mt-3 inline-block text-[11px] uppercase tracking-[0.14em] text-nala-rose">
-                        {serviceId === item.id ? 'Selected' : 'Select'}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div>
-              <h2 className="mb-6 font-display text-2xl">Choose Your Date</h2>
-              <div className="mx-auto max-w-md">
-                <div className="mb-4 flex items-center justify-between">
-                  <button
-                    type="button"
-                    className="rounded-sm border border-nala-border p-2"
-                    disabled={
-                      calendarMonth.getFullYear() === new Date().getFullYear() &&
-                      calendarMonth.getMonth() === new Date().getMonth()
-                    }
-                    onClick={() =>
-                      setCalendarMonth(
-                        (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
-                      )
-                    }
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <p className="text-sm font-medium">
-                    {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                  </p>
-                  <button
-                    type="button"
-                    className="rounded-sm border border-nala-border p-2"
-                    onClick={() =>
-                      setCalendarMonth(
-                        (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
-                      )
-                    }
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-                <div className="mb-2 grid grid-cols-7 gap-1 text-center text-[11px] uppercase tracking-wider text-nala-muted">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-                    <div key={d}>{d}</div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-md border border-nala-border bg-nala-ivory p-5 sm:p-8"
+          >
+            {step === 'category' && (
+              <div className="space-y-4">
+                <h2 className="font-display text-2xl">What are you looking for?</h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        setCategory(cat.id);
+                        setStep('services');
+                      }}
+                      className="rounded-md border border-nala-border px-5 py-6 text-left transition hover:border-nala-blush hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush"
+                    >
+                      <span className="font-display text-xl">{cat.label}</span>
+                    </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {getCalendarMatrix(calendarMonth).flat().map((day) => {
-                    const inMonth = day.getMonth() === calendarMonth.getMonth();
-                    const iso = toISODate(day);
-                    const disabled = !inMonth || isPastDate(day);
-                    const selected = date === iso;
+                <button
+                  type="button"
+                  className="btn-ghost"
+                  onClick={() => {
+                    setCategory(null);
+                    setStep('services');
+                  }}
+                >
+                  Browse all services →
+                </button>
+              </div>
+            )}
+
+            {step === 'services' && (
+              <div className="space-y-5">
+                <h2 className="font-display text-2xl">Select service(s)</h2>
+                <p className="text-sm text-nala-muted">You can select more than one.</p>
+                <div className="space-y-3">
+                  {categoryServices.map((item) => {
+                    const selected = draft.serviceIds.includes(item.id);
                     return (
-                      <button
-                        key={iso + String(inMonth)}
+                      <motion.button
+                        key={item.id}
                         type="button"
-                        disabled={disabled}
-                        onClick={() => {
-                          setDate(iso);
-                          setTime('');
-                        }}
-                        className={`aspect-square rounded-sm text-sm transition ${
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => toggleService(item.id)}
+                        className={`flex w-full items-start gap-4 rounded-md border p-4 text-left transition ${
                           selected
-                            ? 'bg-nala-charcoal text-nala-ivory'
-                            : disabled
-                              ? 'cursor-not-allowed text-nala-border'
-                              : 'hover:bg-nala-cream'
+                            ? 'border-nala-charcoal bg-nala-soft'
+                            : 'border-nala-border hover:border-nala-blush'
                         }`}
                       >
-                        {day.getDate()}
-                      </button>
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="h-16 w-16 rounded-sm object-cover"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-nala-charcoal">{item.name}</p>
+                          <p className="mt-1 text-sm text-nala-muted">{item.description}</p>
+                          <p className="mt-2 inline-flex items-center gap-1 text-xs text-nala-muted">
+                            <Clock className="h-3.5 w-3.5" />
+                            {formatDuration(item.duration, item.durationLabel)}
+                          </p>
+                        </div>
+                        <span
+                          className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${
+                            selected
+                              ? 'border-nala-charcoal bg-nala-charcoal text-nala-ivory'
+                              : 'border-nala-border'
+                          }`}
+                        >
+                          {selected && <Check className="h-3 w-3" />}
+                        </span>
+                      </motion.button>
                     );
                   })}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div>
-              <h2 className="mb-6 font-display text-2xl">Choose Preferred Time</h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {settings.bookingTimeSlots.map((slot) => (
-                  <button
-                    key={slot}
-                    type="button"
-                    onClick={() => setTime(slot)}
-                    className={`rounded-sm border px-4 py-3 text-sm transition ${
-                      time === slot
-                        ? 'border-nala-charcoal bg-nala-charcoal text-nala-ivory'
-                        : 'border-nala-border hover:border-nala-nude'
-                    }`}
-                  >
-                    {slot}
+                <div className="flex justify-between gap-3 pt-2">
+                  <button type="button" className="btn-ghost" onClick={goBack}>
+                    <ChevronLeft className="h-4 w-4" /> Back
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    disabled={!draft.serviceIds.length}
+                    onClick={goNext}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 4 && (
-            <div>
-              <h2 className="mb-6 font-display text-2xl">Your Details</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <label className="label-nala" htmlFor="name">
-                    Full Name *
+            {step === 'staff' && (
+              <div className="space-y-5">
+                <h2 className="font-display text-2xl">Preferred artist</h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStaff(null, true);
+                    setStep('datetime');
+                  }}
+                  className={`w-full rounded-md border p-4 text-left transition ${
+                    draft.noPreference
+                      ? 'border-nala-charcoal bg-nala-soft'
+                      : 'border-nala-border hover:border-nala-blush'
+                  }`}
+                >
+                  <p className="font-medium">No preference</p>
+                  <p className="mt-1 text-sm text-nala-muted">
+                    We&apos;ll match you with the best available artist.
+                  </p>
+                </button>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {eligibleStaff.map((member) => (
+                    <button
+                      key={member.id}
+                      type="button"
+                      onClick={() => {
+                        setStaff(member.id, false);
+                        setStep('datetime');
+                      }}
+                      className={`rounded-md border p-4 text-left transition ${
+                        draft.staffId === member.id && !draft.noPreference
+                          ? 'border-nala-charcoal bg-nala-soft'
+                          : 'border-nala-border hover:border-nala-blush'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={member.image}
+                          alt=""
+                          className="h-12 w-12 rounded-full object-cover"
+                        />
+                        <div>
+                          <p className="font-medium">{member.name}</p>
+                          <p className="text-xs text-nala-muted">{member.title}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button type="button" className="btn-ghost" onClick={goBack}>
+                  <ChevronLeft className="h-4 w-4" /> Back
+                </button>
+              </div>
+            )}
+
+            {step === 'datetime' && (
+              <div className="space-y-6">
+                <h2 className="font-display text-2xl">Pick a date & time</h2>
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    className="rounded-sm p-2 hover:bg-nala-mist"
+                    aria-label="Previous month"
+                    onClick={() =>
+                      setCalendarMonth(
+                        (m) => new Date(m.getFullYear(), m.getMonth() - 1, 1)
+                      )
+                    }
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <p className="font-medium">
+                    {calendarMonth.toLocaleDateString(undefined, {
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </p>
+                  <button
+                    type="button"
+                    className="rounded-sm p-2 hover:bg-nala-mist"
+                    aria-label="Next month"
+                    onClick={() =>
+                      setCalendarMonth(
+                        (m) => new Date(m.getFullYear(), m.getMonth() + 1, 1)
+                      )
+                    }
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-7 gap-1 text-center text-[11px] uppercase tracking-wider text-nala-muted">
+                  {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
+                    <div key={d} className="py-1">
+                      {d}
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {calendarDays.map((cell, i) =>
+                    cell.day === 0 ? (
+                      <div key={`e-${i}`} />
+                    ) : (
+                      <button
+                        key={cell.date}
+                        type="button"
+                        disabled={cell.disabled}
+                        onClick={() => setDateTime(cell.date, '')}
+                        className={`aspect-square rounded-sm text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush ${
+                          cell.disabled
+                            ? 'cursor-not-allowed text-nala-border'
+                            : draft.date === cell.date
+                              ? 'bg-nala-charcoal text-nala-ivory'
+                              : 'hover:bg-nala-mist'
+                        }`}
+                      >
+                        {cell.day}
+                      </button>
+                    )
+                  )}
+                </div>
+
+                {draft.date && (
+                  <div>
+                    <p className="mb-3 text-sm text-nala-muted">
+                      Available times for {formatDisplayDate(draft.date)}
+                    </p>
+                    {availableSlots.length === 0 ? (
+                      <p className="rounded-md bg-nala-mist px-4 py-6 text-center text-sm text-nala-muted">
+                        Fully booked this day — please choose another date.
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                        {availableSlots.map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setDateTime(draft.date, t)}
+                            className={`rounded-sm border px-3 py-3 text-sm transition ${
+                              draft.time === t
+                                ? 'border-nala-charcoal bg-nala-charcoal text-nala-ivory'
+                                : 'border-nala-border hover:border-nala-blush'
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex justify-between gap-3 pt-2">
+                  <button type="button" className="btn-ghost" onClick={goBack}>
+                    <ChevronLeft className="h-4 w-4" /> Back
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    disabled={!draft.date || !draft.time}
+                    onClick={goNext}
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 'details' && (
+              <form className="space-y-5" onSubmit={handleSubmit(onDetailsSubmit)}>
+                <h2 className="font-display text-2xl">Your details</h2>
+                <div>
+                  <label className="label-nala" htmlFor="customerName">
+                    Full name
                   </label>
                   <input
-                    id="name"
+                    id="customerName"
                     className="input-nala"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
+                    autoComplete="name"
+                    {...register('customerName')}
                   />
+                  {errors.customerName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.customerName.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="label-nala" htmlFor="phone">
-                    Phone Number *
+                    Phone
                   </label>
                   <input
                     id="phone"
                     className="input-nala"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="9703422242"
-                    required
+                    autoComplete="tel"
+                    inputMode="tel"
+                    {...register('phone')}
                   />
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="label-nala" htmlFor="email">
@@ -416,84 +588,111 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
                     id="email"
                     type="email"
                     className="input-nala"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    {...register('email')}
                   />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  )}
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="label-nala" htmlFor="artist">
-                    Preferred Artist
+                <div>
+                  <label className="label-nala" htmlFor="notes">
+                    Notes (optional)
                   </label>
-                  <input
-                    id="artist"
-                    className="input-nala"
-                    value={artist}
-                    onChange={(e) => setArtist(e.target.value)}
-                    placeholder="Optional"
-                  />
+                  <textarea id="notes" rows={3} className="input-nala" {...register('notes')} />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="label-nala" htmlFor="message">
-                    Additional Message
-                  </label>
-                  <textarea
-                    id="message"
-                    className="input-nala min-h-[110px] resize-y"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                  />
+                <div className="flex justify-between gap-3 pt-2">
+                  <button type="button" className="btn-ghost" onClick={goBack}>
+                    <ChevronLeft className="h-4 w-4" /> Back
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    Review
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {step === 'review' && (
+              <div className="space-y-5">
+                <h2 className="font-display text-2xl">Review & confirm</h2>
+                <dl className="space-y-3 text-sm">
+                  <div className="flex justify-between gap-4 border-b border-nala-border/60 py-2">
+                    <dt className="text-nala-muted">Services</dt>
+                    <dd className="text-right font-medium">
+                      {selectedServices.map((s) => s.name).join(' + ')}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4 border-b border-nala-border/60 py-2">
+                    <dt className="text-nala-muted">Artist</dt>
+                    <dd className="font-medium">
+                      {draft.noPreference
+                        ? 'No preference'
+                        : staff.find((s) => s.id === draft.staffId)?.name}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4 border-b border-nala-border/60 py-2">
+                    <dt className="text-nala-muted">When</dt>
+                    <dd className="font-medium">
+                      {formatDisplayDate(draft.date)} · {draft.time}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4 border-b border-nala-border/60 py-2">
+                    <dt className="text-nala-muted">Name</dt>
+                    <dd className="font-medium">{draft.customerName}</dd>
+                  </div>
+                  <div className="flex justify-between gap-4 border-b border-nala-border/60 py-2">
+                    <dt className="text-nala-muted">Contact</dt>
+                    <dd className="text-right font-medium">
+                      {draft.phone}
+                      <br />
+                      {draft.email}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="text-xs text-nala-muted">
+                  No prices are shown online — we&apos;ll confirm details with you after your
+                  request.
+                </p>
+                {formspreeState.errors && (
+                  <p className="text-sm text-amber-700">
+                    Your booking is saved locally; email notify may have failed.
+                  </p>
+                )}
+                <div className="flex justify-between gap-3 pt-2">
+                  <button type="button" className="btn-ghost" onClick={goBack}>
+                    <ChevronLeft className="h-4 w-4" /> Back
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    disabled={submitting}
+                    onClick={confirmBooking}
+                  >
+                    {submitting ? 'Submitting…' : 'Confirm booking'}
+                  </button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 5 && (
-            <form onSubmit={onConfirm}>
-              <h2 className="mb-6 font-display text-2xl">Confirm Appointment</h2>
-              <dl className="space-y-3 rounded-md border border-nala-border bg-nala-soft/60 p-5 text-sm">
-                <div className="flex justify-between gap-4">
-                  <dt className="text-nala-muted">Service</dt>
-                  <dd className="font-medium text-nala-charcoal">{service?.name}</dd>
+            {step === 'confirmed' && (
+              <div className="space-y-5 text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <Check className="h-7 w-7" />
                 </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-nala-muted">Date</dt>
-                  <dd className="font-medium text-nala-charcoal">{formatDisplayDate(date)}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-nala-muted">Time</dt>
-                  <dd className="font-medium text-nala-charcoal">{time}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-nala-muted">Customer</dt>
-                  <dd className="font-medium text-nala-charcoal">{name}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-nala-muted">Phone</dt>
-                  <dd className="font-medium text-nala-charcoal">{phone}</dd>
-                </div>
-              </dl>
-              <button type="submit" className="btn-primary mt-8 w-full" disabled={submitting}>
-                {submitting ? 'Sending…' : 'Request Appointment'}
-              </button>
-            </form>
-          )}
-
-          {step < 5 && (
-            <div className="mt-8 flex items-center justify-between gap-3">
-              <button
-                type="button"
-                className="btn-ghost"
-                disabled={step === 1}
-                onClick={() => setStep((s) => Math.max(1, s - 1))}
-              >
-                Back
-              </button>
-              <button type="button" className="btn-primary" onClick={goNext}>
-                Continue
-              </button>
-            </div>
-          )}
-        </div>
+                <h2 className="font-display text-3xl">You&apos;re booked</h2>
+                <p className="text-nala-muted">
+                  We&apos;ve received your request and will confirm shortly by phone or message.
+                </p>
+                <p className="rounded-md bg-nala-soft px-4 py-3 font-medium tracking-wide">
+                  Reference: {draft.reference}
+                </p>
+                <button type="button" className="btn-primary" onClick={startOver}>
+                  Book another
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

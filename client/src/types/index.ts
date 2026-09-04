@@ -1,4 +1,4 @@
-export type ServiceCategory = 'nails' | 'lashes' | 'beauty' | 'courses';
+export type ServiceCategory = 'nails' | 'lashes' | 'brows' | 'beauty' | 'courses';
 
 export type GalleryCategory =
   | 'nails'
@@ -10,11 +10,21 @@ export type GalleryCategory =
 
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
+export type EnrollmentStatus = 'active' | 'completed' | 'withdrawn';
+
+export type StaffRole = 'nail_tech' | 'lash_tech' | 'esthetician' | 'instructor' | 'manager';
+
+/**
+ * PUBLIC UI RULE: Never render `price` / `priceLabel` / currency on public routes.
+ * Optional price fields exist only for future admin/invoicing use.
+ */
 export interface Service {
   id: string;
   name: string;
   description: string;
+  /** @internal Admin/future invoicing only — do not render on public UI */
   price: number | null;
+  /** @internal Admin/future invoicing only — do not render on public UI */
   priceLabel?: string;
   duration: number | null;
   durationLabel?: string;
@@ -23,6 +33,7 @@ export interface Service {
   popular?: boolean;
   active: boolean;
   order: number;
+  staffIds?: string[];
 }
 
 export interface GalleryImage {
@@ -39,6 +50,7 @@ export interface Course {
   name: string;
   description: string;
   duration: string;
+  /** @internal Do not render on public UI — use "Contact us for enrollment" CTA */
   price: string;
   image: string;
   curriculum: string[];
@@ -61,16 +73,20 @@ export interface Testimonial {
 export interface Certificate {
   id: string;
   certificateNumber: string;
+  studentId?: string;
   studentName: string;
+  courseId?: string;
   course: string;
   courseDuration: string;
   completionDate: string;
   instructorName: string;
+  signatureLabel?: string;
   createdAt: string;
 }
 
 export interface Booking {
   id: string;
+  serviceIds: string[];
   serviceId: string;
   serviceName: string;
   date: string;
@@ -80,9 +96,12 @@ export interface Booking {
   email: string;
   message: string;
   preferredArtist: string;
+  staffId: string | null;
   status: BookingStatus;
   createdAt: string;
+  /** @internal Do not render on public UI */
   totalPrice: number | null;
+  reference: string;
 }
 
 export interface MediaItem {
@@ -90,6 +109,68 @@ export interface MediaItem {
   name: string;
   src: string;
   createdAt: string;
+}
+
+export interface WorkingHours {
+  day: number; // 0=Sun … 6=Sat
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+}
+
+export interface Staff {
+  id: string;
+  name: string;
+  role: StaffRole;
+  title: string;
+  bio: string;
+  specialties: string[];
+  image: string;
+  serviceIds: string[];
+  workingHours: WorkingHours[];
+  active: boolean;
+  order: number;
+}
+
+export interface Student {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  notes: string;
+  enrolledAt: string;
+  active: boolean;
+}
+
+export interface ClassSession {
+  id: string;
+  courseId: string;
+  name: string;
+  instructorId: string;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  location: string;
+  active: boolean;
+}
+
+export interface Enrollment {
+  id: string;
+  studentId: string;
+  classId: string;
+  courseId: string;
+  status: EnrollmentStatus;
+  enrolledAt: string;
+  progress: number;
+  notes: string;
+}
+
+export interface OwnerUser {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  role: 'owner';
 }
 
 export interface SiteContent {
@@ -117,6 +198,7 @@ export interface SiteContent {
 export interface SiteSettings {
   formspreeFormId: string;
   adminPassword: string;
+  adminEmail: string;
   studioName: string;
   certificatePrefix: string;
   bookingTimeSlots: string[];
@@ -130,6 +212,11 @@ export interface StudioData {
   certificates: Certificate[];
   bookings: Booking[];
   media: MediaItem[];
+  staff: Staff[];
+  students: Student[];
+  classes: ClassSession[];
+  enrollments: Enrollment[];
+  owner: OwnerUser;
   content: SiteContent;
   settings: SiteSettings;
   certificateCounter: number;
@@ -152,4 +239,12 @@ export const GALLERY_CATEGORY_OPTIONS: { value: GalleryCategory; label: string }
   { value: 'mani-pedi', label: 'Mani & Pedi' },
   { value: 'studios', label: 'Studios' },
   { value: 'class', label: 'Class' },
+];
+
+export const SERVICE_CATEGORY_OPTIONS: { value: ServiceCategory; label: string }[] = [
+  { value: 'nails', label: 'Nails' },
+  { value: 'lashes', label: 'Lashes' },
+  { value: 'brows', label: 'Brows' },
+  { value: 'beauty', label: 'Beauty' },
+  { value: 'courses', label: 'Courses' },
 ];

@@ -32,7 +32,9 @@ const AdminServices: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl">Services</h1>
-          <p className="mt-1 text-sm text-nala-muted">Edit names, prices, durations and images</p>
+          <p className="mt-1 text-sm text-nala-muted">
+            Manage catalogue (prices stay admin-only — never shown on the public site)
+          </p>
         </div>
         <button type="button" className="btn-primary" onClick={() => setEditing(emptyService())}>
           Add service
@@ -171,6 +173,7 @@ const AdminServices: React.FC = () => {
                 >
                   <option value="nails">Nails</option>
                   <option value="lashes">Lashes</option>
+                  <option value="brows">Brows</option>
                   <option value="beauty">Beauty</option>
                   <option value="courses">Courses</option>
                 </select>

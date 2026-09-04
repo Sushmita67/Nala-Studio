@@ -1,14 +1,17 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useStudio } from '../context/StudioContext';
+import SectionHeader from './SectionHeader';
 import type { ServiceCategory } from '../types';
 
 const categoryMeta: { id: ServiceCategory; label: string }[] = [
-  { id: 'nails', label: 'NAILS' },
-  { id: 'lashes', label: 'LASHES' },
-  { id: 'beauty', label: 'BEAUTY' },
-  { id: 'courses', label: 'COURSES' },
+  { id: 'nails', label: 'Nails' },
+  { id: 'lashes', label: 'Lashes' },
+  { id: 'brows', label: 'Brows' },
+  { id: 'beauty', label: 'Beauty' },
+  { id: 'courses', label: 'Academy' },
 ];
 
 interface ServicesSectionProps {
@@ -20,7 +23,8 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
   limitPerCategory = 3,
   showViewAll = true,
 }) => {
-  const { activeServices, formatPrice, formatDuration } = useStudio();
+  const { activeServices, formatDuration } = useStudio();
+  const reduceMotion = useReducedMotion();
 
   const grouped = useMemo(() => {
     return categoryMeta.map((cat) => ({
@@ -32,61 +36,67 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
   }, [activeServices, limitPerCategory]);
 
   return (
-    <section id="services" className="bg-nala-soft py-20 lg:py-28">
+    <section id="services" className="section-pad bg-nala-soft">
       <div className="container-nala">
-        <div className="mb-12 max-w-2xl">
-          <p className="section-label mb-4">Our Services</p>
-          <h2 className="section-title mb-4">Treatments at NALA</h2>
-          <p className="prose-nala">
-            Nails, lashes, makeup and professional beauty education — priced clearly, delivered with
-            care.
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Services"
+          title="Treatments at NALA"
+          description="Nails, lashes, brows and beauty — crafted with care. Contact us for pricing."
+          action={
+            showViewAll ? (
+              <Link to="/services" className="btn-ghost hidden sm:inline-flex">
+                View all →
+              </Link>
+            ) : undefined
+          }
+        />
 
-        <div className="space-y-12">
+        <div className="space-y-14">
           {grouped.map(
             (group) =>
               group.items.length > 0 && (
                 <div key={group.id}>
-                  <h3 className="mb-5 font-sans text-xs font-medium uppercase tracking-[0.24em] text-nala-brown">
+                  <h3 className="mb-6 text-caption font-medium uppercase text-nala-brown">
                     {group.label}
                   </h3>
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {group.items.map((service) => (
-                      <article
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {group.items.map((service, index) => (
+                      <motion.article
                         key={service.id}
-                        className="group overflow-hidden rounded-md border border-nala-border/70 bg-nala-ivory transition duration-300 hover:shadow-soft"
+                        initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: '-40px' }}
+                        transition={{ delay: index * 0.04, duration: 0.35 }}
+                        className="group"
                       >
-                        <div className="aspect-[4/3] overflow-hidden">
-                          <img
-                            src={service.image}
-                            alt={service.name}
-                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        </div>
-                        <div className="p-5">
-                          <h4 className="font-display text-2xl text-nala-charcoal">{service.name}</h4>
-                          <p className="mt-2 text-sm leading-relaxed text-nala-muted">
-                            {service.description}
-                          </p>
-                          <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-                            <span className="font-medium text-nala-charcoal">
-                              {formatPrice(service.price, service.priceLabel)}
-                            </span>
-                            <span className="inline-flex items-center gap-1 text-nala-muted">
-                              <Clock className="h-3.5 w-3.5" />
-                              {formatDuration(service.duration, service.durationLabel)}
-                            </span>
+                        <Link to={`/book?service=${service.id}`} className="block outline-none">
+                          <div className="aspect-[4/3] overflow-hidden rounded-[var(--radius-sm)] bg-nala-mist">
+                            <img
+                              src={service.image}
+                              alt=""
+                              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                              loading="lazy"
+                            />
                           </div>
-                          <Link
-                            to={`/book?service=${service.id}`}
-                            className="btn-ghost mt-4 !justify-start"
-                          >
-                            Book Now →
-                          </Link>
-                        </div>
-                      </article>
+                          <div className="pt-4">
+                            <h4 className="font-display text-2xl text-nala-charcoal transition group-hover:text-nala-brown">
+                              {service.name}
+                            </h4>
+                            <p className="mt-2 text-sm leading-relaxed text-nala-muted">
+                              {service.description}
+                            </p>
+                            <div className="mt-3 flex items-center justify-between gap-3 text-xs text-nala-muted">
+                              <span className="uppercase tracking-[0.12em]">
+                                Enquire for pricing
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <Clock className="h-3.5 w-3.5" aria-hidden />
+                                {formatDuration(service.duration, service.durationLabel)}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.article>
                     ))}
                   </div>
                 </div>
@@ -95,7 +105,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
         </div>
 
         {showViewAll && (
-          <div className="mt-12 text-center">
+          <div className="mt-12 text-center sm:hidden">
             <Link to="/services" className="btn-secondary">
               View all services
             </Link>

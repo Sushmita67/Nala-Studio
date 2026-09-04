@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, NavLink, Outlet, Navigate, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   CalendarDays,
@@ -14,9 +14,11 @@ import {
   LogOut,
   Menu,
   X,
+  Users,
 } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Logo from '../../components/Logo';
+import RequireAuth from '../../components/RequireAuth';
 
 const links = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -24,6 +26,7 @@ const links = [
   { to: '/admin/services', label: 'Services', icon: Sparkles },
   { to: '/admin/gallery', label: 'Gallery', icon: Images },
   { to: '/admin/courses', label: 'Courses', icon: GraduationCap },
+  { to: '/admin/students', label: 'Students', icon: Users },
   { to: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
   { to: '/admin/certificates', label: 'Certificates', icon: Award },
   { to: '/admin/content', label: 'Content', icon: FileText },
@@ -32,11 +35,9 @@ const links = [
 ];
 
 const AdminLayout: React.FC = () => {
-  const { isAdmin, logout } = useAdminAuth();
+  const { logout } = useAdminAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-
-  if (!isAdmin) return <Navigate to="/admin/login" replace />;
 
   const sidebar = (
     <div className="flex h-full flex-col">
@@ -83,44 +84,56 @@ const AdminLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-nala-soft">
-      <div className="flex min-h-screen">
-        <aside className="hidden w-64 shrink-0 border-r border-nala-border bg-nala-ivory lg:block">
-          {sidebar}
-        </aside>
+    <RequireAuth>
+      <div className="min-h-screen bg-nala-soft">
+        <div className="flex min-h-screen">
+          <aside className="hidden w-64 shrink-0 border-r border-nala-border bg-nala-ivory lg:block">
+            {sidebar}
+          </aside>
 
-        {open && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <div className="absolute inset-0 bg-nala-charcoal/40" onClick={() => setOpen(false)} />
-            <aside className="absolute inset-y-0 left-0 w-72 bg-nala-ivory shadow-soft">
+          {open && (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <div className="absolute inset-0 bg-nala-charcoal/40" onClick={() => setOpen(false)} />
+              <aside className="absolute inset-y-0 left-0 w-72 bg-nala-ivory shadow-soft">
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 p-2"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+                {sidebar}
+              </aside>
+            </div>
+          )}
+
+          <div className="flex min-w-0 flex-1 flex-col">
+            <header className="flex items-center justify-between border-b border-nala-border bg-nala-ivory px-4 py-3 lg:px-8">
               <button
                 type="button"
-                className="absolute right-3 top-3 p-2"
-                onClick={() => setOpen(false)}
+                className="rounded-sm p-2 lg:hidden"
+                onClick={() => setOpen(true)}
+                aria-label="Open menu"
+                aria-expanded={open}
               >
-                <X className="h-5 w-5" />
+                <Menu className="h-5 w-5" aria-hidden />
               </button>
-              {sidebar}
-            </aside>
+              <p className="text-sm text-nala-muted">Studio dashboard</p>
+              <Link
+                to="/"
+                className="text-xs tracking-wide text-nala-muted transition hover:text-nala-charcoal"
+              >
+                View site
+              </Link>
+            </header>
+            <main className="flex-1 p-4 lg:p-8">
+              <Outlet />
+            </main>
           </div>
-        )}
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-nala-border bg-nala-ivory px-4 py-3 lg:px-8">
-            <button type="button" className="p-2 lg:hidden" onClick={() => setOpen(true)}>
-              <Menu className="h-5 w-5" />
-            </button>
-            <p className="text-sm text-nala-muted">NALA Studio Dashboard</p>
-            <Link to="/" className="text-xs uppercase tracking-[0.14em] text-nala-muted hover:text-nala-charcoal">
-              View site
-            </Link>
-          </header>
-          <main className="flex-1 p-4 lg:p-8">
-            <Outlet />
-          </main>
         </div>
       </div>
-    </div>
+    </RequireAuth>
   );
 };
 

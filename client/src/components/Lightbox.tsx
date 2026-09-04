@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { GalleryImage } from '../types';
 
@@ -12,6 +12,7 @@ interface LightboxProps {
 const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onChange }) => {
   const current = images[index];
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const prev = useCallback(() => {
     onChange((index - 1 + images.length) % images.length);
@@ -27,10 +28,12 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onChange })
       if (e.key === 'ArrowLeft') prev();
       if (e.key === 'ArrowRight') next();
     };
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
     window.addEventListener('keydown', onKey);
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKey);
     };
   }, [next, onClose, prev]);
@@ -39,42 +42,44 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onChange })
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-nala-charcoal/90 p-4"
+      className="fixed inset-0 z-modal flex items-center justify-center bg-nala-charcoal/92 p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
+      aria-label={current.caption || 'Gallery image viewer'}
     >
       <button
+        ref={closeRef}
         type="button"
-        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
         onClick={onClose}
-        aria-label="Close"
+        aria-label="Close gallery viewer"
       >
-        <X className="h-6 w-6" />
+        <X className="h-6 w-6" aria-hidden />
       </button>
 
       <button
         type="button"
-        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 sm:left-6"
+        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20 sm:left-6"
         onClick={(e) => {
           e.stopPropagation();
           prev();
         }}
-        aria-label="Previous"
+        aria-label="Previous image"
       >
-        <ChevronLeft className="h-6 w-6" />
+        <ChevronLeft className="h-6 w-6" aria-hidden />
       </button>
 
       <button
         type="button"
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 sm:right-6"
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20 sm:right-6"
         onClick={(e) => {
           e.stopPropagation();
           next();
         }}
-        aria-label="Next"
+        aria-label="Next image"
       >
-        <ChevronRight className="h-6 w-6" />
+        <ChevronRight className="h-6 w-6" aria-hidden />
       </button>
 
       <div
@@ -92,11 +97,14 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onChange })
         <img
           src={current.src}
           alt={current.caption}
-          className="max-h-[75vh] w-full rounded-sm object-contain"
+          className="max-h-[75vh] w-full rounded-[var(--radius-sm)] object-contain"
         />
         {current.caption && (
           <p className="mt-4 text-center text-sm text-nala-cream">{current.caption}</p>
         )}
+        <p className="mt-2 text-center text-xs text-white/50">
+          {index + 1} / {images.length}
+        </p>
       </div>
     </div>
   );

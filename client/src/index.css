@@ -4,6 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --nala-ivory: #fbf7f2;
+  --nala-cream: #f5ede4;
+  --nala-soft: #f8f1ea;
+  --nala-mist: #efe6dc;
+  --nala-border: #e6d8cc;
+  --nala-muted: #7a6a5e;
+  --nala-charcoal: #2c2420;
+  --nala-rose: #c4877a;
+  --nala-blush: #d4a59a;
+  --nala-brown: #8b6f5c;
+  --space-section: clamp(4.5rem, 8vw, 7.5rem);
+  --space-section-sm: clamp(3.5rem, 6vw, 5rem);
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --header-h: 4.5rem;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 250ms;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -13,9 +33,24 @@
     scroll-behavior: smooth;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   body {
     @apply bg-nala-ivory text-nala-charcoal font-sans antialiased;
-    line-height: 1.6;
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
@@ -25,50 +60,107 @@
     @apply font-display font-medium tracking-tight text-nala-charcoal;
   }
 
+  :focus-visible {
+    outline: 2px solid var(--nala-blush);
+    outline-offset: 3px;
+  }
+
   ::selection {
     background: #e8d9cb;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
   }
 }
 
 @layer components {
   .container-nala {
-    @apply mx-auto w-full max-w-6xl px-5 sm:px-8 lg:px-10;
+    @apply mx-auto w-full max-w-shell px-5 sm:px-8 lg:px-10;
+  }
+
+  .page-shell {
+    @apply pt-[calc(var(--header-h)+1.5rem)] sm:pt-[calc(var(--header-h)+2rem)];
+  }
+
+  .section-pad {
+    padding-block: var(--space-section);
+  }
+
+  .section-pad-sm {
+    padding-block: var(--space-section-sm);
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-nala-charcoal px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-nala-ivory transition-all duration-300 hover:bg-nala-brown focus:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2 focus-visible:ring-offset-nala-ivory disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-nala-charcoal px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.16em] text-nala-ivory transition-all duration-250;
+    @apply hover:bg-nala-brown active:scale-[0.98];
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2 focus-visible:ring-offset-nala-ivory;
+    @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-nala-charcoal/25 bg-transparent px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-nala-charcoal transition-all duration-300 hover:border-nala-charcoal hover:bg-nala-charcoal hover:text-nala-ivory focus:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2 focus-visible:ring-offset-nala-ivory;
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-nala-charcoal/20 bg-transparent px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.16em] text-nala-charcoal transition-all duration-250;
+    @apply hover:border-nala-charcoal hover:bg-nala-charcoal hover:text-nala-ivory active:scale-[0.98];
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2 focus-visible:ring-offset-nala-ivory;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-nala-muted transition-colors hover:text-nala-charcoal;
+    @apply inline-flex items-center justify-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-nala-muted transition-colors duration-250;
+    @apply hover:text-nala-charcoal focus:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2;
   }
 
   .section-label {
-    @apply text-[11px] font-medium uppercase tracking-[0.28em] text-nala-rose;
+    @apply text-caption font-medium uppercase text-nala-rose;
   }
 
   .section-title {
-    @apply font-display text-3xl leading-tight text-nala-charcoal sm:text-4xl lg:text-5xl;
+    @apply font-display text-display-md text-nala-charcoal;
   }
 
   .input-nala {
-    @apply w-full rounded-sm border border-nala-border bg-white/70 px-4 py-3 text-sm text-nala-charcoal placeholder:text-nala-muted/70 outline-none transition focus:border-nala-blush focus:ring-1 focus:ring-nala-blush/40;
+    @apply w-full rounded-[var(--radius-sm)] border border-nala-border bg-white/80 px-4 py-3.5 text-sm text-nala-charcoal placeholder:text-nala-muted/60 outline-none transition duration-250;
+    @apply focus:border-nala-blush focus:ring-1 focus:ring-nala-blush/40;
+    @apply disabled:cursor-not-allowed disabled:bg-nala-mist/50 disabled:opacity-70;
   }
 
   .label-nala {
-    @apply mb-2 block text-[11px] font-medium uppercase tracking-[0.16em] text-nala-muted;
+    @apply mb-2 block text-caption font-medium uppercase text-nala-muted;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-sm text-red-700;
   }
 
   .card-nala {
-    @apply rounded-md border border-nala-border/80 bg-white/60 shadow-card backdrop-blur-sm;
+    @apply rounded-[var(--radius-md)] border border-nala-border/80 bg-white/50 shadow-card;
   }
 
   .prose-nala {
-    @apply text-base leading-relaxed text-nala-muted sm:text-lg;
+    @apply max-w-measure text-base leading-relaxed text-nala-muted sm:text-lg;
+  }
+
+  .nav-link {
+    @apply relative text-[12px] font-medium tracking-[0.04em] text-nala-muted transition-colors duration-250;
+    @apply hover:text-nala-charcoal;
+  }
+
+  .nav-link-active {
+    @apply text-nala-charcoal;
+  }
+
+  .nav-link-active::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 h-px w-full bg-nala-charcoal;
+  }
+
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-nala-charcoal focus:px-4 focus:py-2 focus:text-nala-ivory;
+  }
+
+  .divider-nala {
+    @apply border-t border-nala-border/80;
   }
 }
 
@@ -85,9 +177,12 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .safe-pb {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -105,7 +200,6 @@
   background: #c4877a;
 }
 
-/* Print helpers for certificates */
 @media print {
   .no-print {
     display: none !important;

@@ -1,15 +1,26 @@
 import React from 'react';
+import PageHeader from '../components/PageHeader';
 import GallerySection from '../components/GallerySection';
 
 const GalleryPage: React.FC = () => {
   return (
-    <div className="pt-20">
+    <>
+      <PageHeader
+        eyebrow="Gallery"
+        title="Studio work"
+        description="A living collection of nails, lashes, makeup and moments from NALA Studio."
+        breadcrumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Gallery' },
+        ]}
+      />
       <GallerySection
         showFilters
-        title="Gallery"
-        subtitle="Browse nails, lashes, makeup, studio moments and class work from NALA."
+        showViewAll={false}
+        title="Browse by category"
+        subtitle="Tap any image to open the lightbox."
       />
-    </div>
+    </>
   );
 };
 

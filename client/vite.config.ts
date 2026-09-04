@@ -8,6 +8,9 @@ export default defineConfig({
   css: {
     postcss: './postcss.config.js'
   },
+  build: {
+    chunkSizeWarningLimit: 1600,
+  },
   server: {
     port: 5174,
     host: true

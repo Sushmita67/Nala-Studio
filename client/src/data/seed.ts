@@ -1,41 +1,81 @@
 import type {
+  ClassSession,
   Course,
+  Enrollment,
   GalleryImage,
+  OwnerUser,
   Service,
   SiteContent,
   SiteSettings,
+  Staff,
+  Student,
   StudioData,
   Testimonial,
+  WorkingHours,
 } from '../types';
-import { BRAND, DEFAULT_ADMIN_PASSWORD, DEFAULT_FORMSPREE_FORM_ID } from '../config';
+import {
+  BRAND,
+  DEFAULT_ADMIN_EMAIL,
+  DEFAULT_ADMIN_PASSWORD,
+  DEFAULT_FORMSPREE_FORM_ID,
+} from '../config';
 
 import heroImg from '../assets/images/ns-hero1.jpg';
 import aboutImg from '../assets/images/nss1.jpg';
-import ns1 from '../assets/images/ns-1.jpg';
-import ns2 from '../assets/images/ns-2.jpg';
-import ns3 from '../assets/images/ns-3.jpg';
-import ns4 from '../assets/images/ns-4.jpg';
-import ns5 from '../assets/images/ns-5.jpg';
-import ns6 from '../assets/images/ns-6.jpg';
-import ns10 from '../assets/images/ns-10.jpg';
-import ns11 from '../assets/images/ns-11.jpg';
-import ns12 from '../assets/images/ns-12.jpg';
-import ns14 from '../assets/images/ns-14.jpg';
-import ns15 from '../assets/images/ns-15.jpg';
-import ns16 from '../assets/images/ns-16.jpg';
-import ns17 from '../assets/images/ns-17.jpg';
-import ns19 from '../assets/images/ns-19.jpg';
-import ns21 from '../assets/images/ns-21.jpg';
-import ns22 from '../assets/images/ns-22.jpg';
-import ns23 from '../assets/images/ns-23.jpg';
-import ns24 from '../assets/images/ns-24.jpg';
-import ns25 from '../assets/images/ns-25.jpg';
-import ns26 from '../assets/images/ns-26.jpg';
+
+import nail1 from '../assets/images/Nail1.jpg';
+import nails2 from '../assets/images/Nails2.jpg';
+import nails3 from '../assets/images/Nails3.jpg';
+import nails5 from '../assets/images/Nails5.jpg';
+import nails8 from '../assets/images/Nails8.jpg';
+import nails11 from '../assets/images/Nails11.jpg';
+import nails13 from '../assets/images/Nails13.jpg';
+import nails15 from '../assets/images/Nails15.jpg';
+import nails19 from '../assets/images/Nails19.jpg';
+import nails20 from '../assets/images/Nails20.jpg';
+import nails21 from '../assets/images/Nails21.jpg';
+import nails24 from '../assets/images/Nails24.jpg';
+import nails26 from '../assets/images/Nails26.jpg';
+import nails30 from '../assets/images/Nails30.jpg';
+import nails35 from '../assets/images/Nails35.jpg';
+import nails42 from '../assets/images/Nails42.jpg';
+import nails52 from '../assets/images/Nails52.jpg';
+
+import lash1 from '../assets/images/Lash1.jpg';
+import lash2 from '../assets/images/Lash2.jpg';
+import lash3 from '../assets/images/Lash3.jpg';
+import lash4 from '../assets/images/Lash4.jpg';
+
+import makeup1 from '../assets/images/Makeup1.jpg';
+import makeup2 from '../assets/images/Makeup2.jpg';
+import makeup3 from '../assets/images/Makeup3.jpg';
+import makeup5 from '../assets/images/Makeup5.jpg';
+import makeup9 from '../assets/images/Makeup9.jpg';
+import makeup12 from '../assets/images/Makeup12.jpg';
+
+import studio1 from '../assets/images/Studio1.jpg';
+import studio2 from '../assets/images/Studio2.jpg';
+import studio3 from '../assets/images/Studio3.jpg';
+import studio6 from '../assets/images/Studio6.jpg';
 import nss2 from '../assets/images/nss2.jpg';
 import nss3 from '../assets/images/nss3.jpg';
 import nss4 from '../assets/images/nss4.jpg';
 import nss5 from '../assets/images/nss5.jpg';
+import ns30 from '../assets/images/ns30.jpg';
 
+const weekdayHours = (start = '10:00', end = '19:00'): WorkingHours[] =>
+  [0, 1, 2, 3, 4, 5, 6].map((day) => ({
+    day,
+    startTime: day === 6 ? '11:00' : start,
+    endTime: day === 6 ? '18:00' : end,
+    isAvailable: day !== 0, // closed Sunday by default; adjust per staff
+  }));
+
+/**
+ * Seed data layer.
+ * PUBLIC UI RULE: `price` / `priceLabel` on services & courses must never be rendered
+ * on public-facing routes. Prefer "Contact us for pricing" CTAs only.
+ */
 export const seedServices: Service[] = [
   {
     id: 'svc-manicure',
@@ -44,10 +84,11 @@ export const seedServices: Service[] = [
     price: 1200,
     duration: 45,
     category: 'nails',
-    image: ns10,
+    image: nail1,
     popular: true,
     active: true,
     order: 1,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-gel-manicure',
@@ -56,10 +97,11 @@ export const seedServices: Service[] = [
     price: 2000,
     duration: 60,
     category: 'nails',
-    image: ns11,
+    image: nails11,
     popular: true,
     active: true,
     order: 2,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-acrylic',
@@ -68,10 +110,11 @@ export const seedServices: Service[] = [
     price: 3500,
     duration: 90,
     category: 'nails',
-    image: ns12,
+    image: nails19,
     popular: true,
     active: true,
     order: 3,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-extensions',
@@ -80,9 +123,10 @@ export const seedServices: Service[] = [
     price: 3500,
     duration: 120,
     category: 'nails',
-    image: ns14,
+    image: nails20,
     active: true,
     order: 4,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-designs',
@@ -91,9 +135,10 @@ export const seedServices: Service[] = [
     price: 500,
     duration: 30,
     category: 'nails',
-    image: ns15,
+    image: nails24,
     active: true,
     order: 5,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-painting',
@@ -102,9 +147,10 @@ export const seedServices: Service[] = [
     price: 800,
     duration: 30,
     category: 'nails',
-    image: ns16,
+    image: nails15,
     active: true,
     order: 6,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-repair',
@@ -113,9 +159,10 @@ export const seedServices: Service[] = [
     price: 500,
     duration: 20,
     category: 'nails',
-    image: ns17,
+    image: nails5,
     active: true,
     order: 7,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-polish-change',
@@ -124,9 +171,10 @@ export const seedServices: Service[] = [
     price: 600,
     duration: 25,
     category: 'nails',
-    image: ns19,
+    image: nails8,
     active: true,
     order: 8,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-polish-removal',
@@ -135,9 +183,10 @@ export const seedServices: Service[] = [
     price: 400,
     duration: 20,
     category: 'nails',
-    image: ns1,
+    image: nails3,
     active: true,
     order: 9,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-lashes',
@@ -146,10 +195,36 @@ export const seedServices: Service[] = [
     price: 3500,
     duration: 120,
     category: 'lashes',
-    image: ns21,
+    image: lash1,
     popular: true,
     active: true,
     order: 10,
+    staffIds: ['staff-sushmita', 'staff-alisha'],
+  },
+  {
+    id: 'svc-lash-fill',
+    name: 'Lash Fill',
+    description: 'Refresh and refill your existing lash set.',
+    price: 2100,
+    duration: 60,
+    category: 'lashes',
+    image: lash2,
+    active: true,
+    order: 11,
+    staffIds: ['staff-sushmita', 'staff-alisha'],
+  },
+  {
+    id: 'svc-brows',
+    name: 'Brow Shaping & Tint',
+    description: 'Defined brows shaped and tinted to frame your face.',
+    price: 1500,
+    duration: 40,
+    category: 'brows',
+    image: makeup5,
+    popular: true,
+    active: true,
+    order: 12,
+    staffIds: ['staff-sushmita'],
   },
   {
     id: 'svc-makeup',
@@ -158,10 +233,11 @@ export const seedServices: Service[] = [
     price: 4000,
     duration: 60,
     category: 'beauty',
-    image: ns22,
+    image: makeup1,
     popular: true,
     active: true,
-    order: 11,
+    order: 13,
+    staffIds: ['staff-sushmita'],
   },
   {
     id: 'svc-pedicure',
@@ -170,9 +246,10 @@ export const seedServices: Service[] = [
     price: 2100,
     duration: 60,
     category: 'beauty',
-    image: ns23,
+    image: nails30,
     active: true,
-    order: 12,
+    order: 14,
+    staffIds: ['staff-alisha', 'staff-ashmita'],
   },
   {
     id: 'svc-courses',
@@ -183,35 +260,38 @@ export const seedServices: Service[] = [
     duration: null,
     durationLabel: 'Flexible',
     category: 'courses',
-    image: ns24,
+    image: nss4,
     active: true,
-    order: 13,
+    order: 15,
+    staffIds: ['staff-alisha'],
   },
 ];
 
 export const seedGallery: GalleryImage[] = [
-  { id: 'gal-1', src: ns26, caption: 'NALA Studio', category: 'studios', featured: true, order: 1 },
-  { id: 'gal-2', src: ns10, caption: 'Soft pink nail extensions', category: 'nails', featured: true, order: 2 },
-  { id: 'gal-3', src: ns17, caption: 'Almond white with gold accents', category: 'nails', featured: true, order: 3 },
-  { id: 'gal-4', src: ns19, caption: 'Long glam tip set', category: 'nails', featured: false, order: 4 },
-  { id: 'gal-5', src: ns14, caption: 'Red and gold statement nails', category: 'nails', featured: false, order: 5 },
-  { id: 'gal-6', src: ns15, caption: 'Classic red polish', category: 'nails', featured: false, order: 6 },
-  { id: 'gal-7', src: ns11, caption: 'Soft glam almond nails', category: 'nails', featured: true, order: 7 },
-  { id: 'gal-8', src: ns12, caption: 'Floral fine art', category: 'nails', featured: false, order: 8 },
-  { id: 'gal-9', src: ns16, caption: 'Gel manicure finish', category: 'mani-pedi', featured: false, order: 9 },
-  { id: 'gal-10', src: ns21, caption: 'Natural lash extensions', category: 'lashes', featured: true, order: 10 },
-  { id: 'gal-11', src: ns22, caption: 'Soft glam makeup', category: 'makeup', featured: true, order: 11 },
-  { id: 'gal-12', src: ns23, caption: 'Pedicure detail', category: 'mani-pedi', featured: false, order: 12 },
-  { id: 'gal-13', src: nss2, caption: 'Studio atmosphere', category: 'studios', featured: false, order: 13 },
-  { id: 'gal-14', src: nss3, caption: 'Treatment room', category: 'studios', featured: false, order: 14 },
+  { id: 'gal-1', src: studio1, caption: 'NALA Studio interior', category: 'studios', featured: true, order: 1 },
+  { id: 'gal-2', src: nails26, caption: 'Soft pink nail extensions', category: 'nails', featured: true, order: 2 },
+  { id: 'gal-3', src: nails21, caption: 'Almond set with detail', category: 'nails', featured: true, order: 3 },
+  { id: 'gal-4', src: nails20, caption: 'Long glam tip set', category: 'nails', featured: false, order: 4 },
+  { id: 'gal-5', src: nails42, caption: 'Statement nail art', category: 'nails', featured: false, order: 5 },
+  { id: 'gal-6', src: nails52, caption: 'Classic polish finish', category: 'nails', featured: false, order: 6 },
+  { id: 'gal-7', src: nails13, caption: 'Soft glam almond nails', category: 'nails', featured: true, order: 7 },
+  { id: 'gal-8', src: nails35, caption: 'Fine art detail', category: 'nails', featured: false, order: 8 },
+  { id: 'gal-9', src: nails2, caption: 'Gel manicure finish', category: 'mani-pedi', featured: false, order: 9 },
+  { id: 'gal-10', src: lash3, caption: 'Natural lash extensions', category: 'lashes', featured: true, order: 10 },
+  { id: 'gal-11', src: makeup2, caption: 'Soft glam makeup', category: 'makeup', featured: true, order: 11 },
+  { id: 'gal-12', src: nails30, caption: 'Pedicure detail', category: 'mani-pedi', featured: false, order: 12 },
+  { id: 'gal-13', src: studio2, caption: 'Studio atmosphere', category: 'studios', featured: false, order: 13 },
+  { id: 'gal-14', src: studio3, caption: 'Treatment room', category: 'studios', featured: false, order: 14 },
   { id: 'gal-15', src: nss4, caption: 'Class demonstration', category: 'class', featured: true, order: 15 },
   { id: 'gal-16', src: nss5, caption: 'Beauty education session', category: 'class', featured: false, order: 16 },
-  { id: 'gal-17', src: ns2, caption: 'Nail art close-up', category: 'nails', featured: false, order: 17 },
-  { id: 'gal-18', src: ns3, caption: 'Nude gel set', category: 'nails', featured: false, order: 18 },
-  { id: 'gal-19', src: ns4, caption: 'Bridal makeup look', category: 'makeup', featured: false, order: 19 },
-  { id: 'gal-20', src: ns5, caption: 'Volume lash set', category: 'lashes', featured: false, order: 20 },
-  { id: 'gal-21', src: ns6, caption: 'Studio detail', category: 'studios', featured: false, order: 21 },
-  { id: 'gal-22', src: ns25, caption: 'Course work in progress', category: 'class', featured: false, order: 22 },
+  { id: 'gal-17', src: lash4, caption: 'Volume lash set', category: 'lashes', featured: false, order: 17 },
+  { id: 'gal-18', src: makeup3, caption: 'Bridal makeup look', category: 'makeup', featured: false, order: 18 },
+  { id: 'gal-19', src: makeup9, caption: 'Evening glam', category: 'makeup', featured: false, order: 19 },
+  { id: 'gal-20', src: makeup12, caption: 'Editorial makeup', category: 'makeup', featured: false, order: 20 },
+  { id: 'gal-21', src: studio6, caption: 'Studio detail', category: 'studios', featured: false, order: 21 },
+  { id: 'gal-22', src: nss3, caption: 'Course work in progress', category: 'class', featured: false, order: 22 },
+  { id: 'gal-23', src: ns30, caption: 'Hands at work', category: 'class', featured: false, order: 23 },
+  { id: 'gal-24', src: nss2, caption: 'Calm studio light', category: 'studios', featured: false, order: 24 },
 ];
 
 export const seedCourses: Course[] = [
@@ -222,7 +302,7 @@ export const seedCourses: Course[] = [
       'Learn nail preparation, gel application, extensions, shaping and nail art from working professionals at NALA Studio.',
     duration: 'Flexible',
     price: 'On request',
-    image: ns24,
+    image: nails24,
     curriculum: [
       'Nail anatomy, hygiene & sanitation',
       'Manicure & cuticle work',
@@ -232,7 +312,7 @@ export const seedCourses: Course[] = [
       'Nail art fundamentals',
       'Client care & studio practice',
     ],
-    enrollmentInfo: 'Contact the studio to discuss schedule, fees and enrollment.',
+    enrollmentInfo: 'Contact the studio to discuss schedule and enrollment.',
     active: true,
     order: 1,
   },
@@ -243,7 +323,7 @@ export const seedCourses: Course[] = [
       'A hands-on lash extension course covering mapping, isolation, application and aftercare.',
     duration: 'Flexible',
     price: 'On request',
-    image: ns21,
+    image: lash1,
     curriculum: [
       'Lash health & safety',
       'Lash mapping and styling',
@@ -252,11 +332,158 @@ export const seedCourses: Course[] = [
       'Removal techniques',
       'Building a lash clientele',
     ],
-    enrollmentInfo: 'Contact the studio to discuss schedule, fees and enrollment.',
+    enrollmentInfo: 'Contact the studio to discuss schedule and enrollment.',
     active: true,
     order: 2,
   },
 ];
+
+export const seedStaff: Staff[] = [
+  {
+    id: 'staff-alisha',
+    name: 'Alisha',
+    role: 'nail_tech',
+    title: 'Lead Nail & Lash Artist',
+    bio: 'Specialises in extensions, gel and natural-looking lash sets with a meticulous finish.',
+    specialties: ['Nail Extensions', 'Gel Manicure', 'Lash Extensions'],
+    image: studio1,
+    serviceIds: [
+      'svc-manicure',
+      'svc-gel-manicure',
+      'svc-acrylic',
+      'svc-extensions',
+      'svc-designs',
+      'svc-painting',
+      'svc-repair',
+      'svc-polish-change',
+      'svc-polish-removal',
+      'svc-lashes',
+      'svc-lash-fill',
+      'svc-pedicure',
+      'svc-courses',
+    ],
+    workingHours: weekdayHours().map((h) => ({ ...h, isAvailable: h.day !== 0 })),
+    active: true,
+    order: 1,
+  },
+  {
+    id: 'staff-ashmita',
+    name: 'Ashmita Bishwakarma',
+    role: 'nail_tech',
+    title: 'Nail Artist',
+    bio: 'Known for clean structure, soft colour and detailed nail art.',
+    specialties: ['Gel Manicure', 'Nail Art', 'Classic Manicure'],
+    image: nails26,
+    serviceIds: [
+      'svc-manicure',
+      'svc-gel-manicure',
+      'svc-acrylic',
+      'svc-extensions',
+      'svc-designs',
+      'svc-painting',
+      'svc-repair',
+      'svc-polish-change',
+      'svc-polish-removal',
+      'svc-pedicure',
+    ],
+    workingHours: weekdayHours().map((h) => ({
+      ...h,
+      isAvailable: h.day !== 0 && h.day !== 6,
+    })),
+    active: true,
+    order: 2,
+  },
+  {
+    id: 'staff-sushmita',
+    name: 'Sushmita Bishwakarma',
+    role: 'lash_tech',
+    title: 'Lashes & Makeup Artist',
+    bio: 'Creates soft glam lashes and occasion makeup with a light, natural touch.',
+    specialties: ['Lash Extensions', 'Makeup', 'Brows'],
+    image: makeup2,
+    serviceIds: ['svc-lashes', 'svc-lash-fill', 'svc-brows', 'svc-makeup'],
+    workingHours: weekdayHours().map((h) => ({ ...h, isAvailable: h.day !== 0 })),
+    active: true,
+    order: 3,
+  },
+];
+
+export const seedStudents: Student[] = [
+  {
+    id: 'stu-1',
+    name: 'Priya Shrestha',
+    email: 'priya.shrestha@example.com',
+    phone: '9801112233',
+    notes: 'Interested in nail extensions career path.',
+    enrolledAt: '2026-01-15T00:00:00.000Z',
+    active: true,
+  },
+  {
+    id: 'stu-2',
+    name: 'Anisha Gurung',
+    email: 'anisha.gurung@example.com',
+    phone: '9802223344',
+    notes: 'Lash course candidate.',
+    enrolledAt: '2026-02-01T00:00:00.000Z',
+    active: true,
+  },
+];
+
+export const seedClasses: ClassSession[] = [
+  {
+    id: 'class-nails-spring',
+    courseId: 'course-nails',
+    name: 'Nail Course — Spring Cohort',
+    instructorId: 'staff-alisha',
+    startDate: '2026-04-01',
+    endDate: '2026-05-15',
+    capacity: 8,
+    location: 'NALA Studio, Phulbari',
+    active: true,
+  },
+  {
+    id: 'class-lashes-spring',
+    courseId: 'course-lashes',
+    name: 'Lash Course — Spring Cohort',
+    instructorId: 'staff-sushmita',
+    startDate: '2026-04-10',
+    endDate: '2026-05-20',
+    capacity: 6,
+    location: 'NALA Studio, Phulbari',
+    active: true,
+  },
+];
+
+export const seedEnrollments: Enrollment[] = [
+  {
+    id: 'enr-1',
+    studentId: 'stu-1',
+    classId: 'class-nails-spring',
+    courseId: 'course-nails',
+    status: 'active',
+    enrolledAt: '2026-03-01T00:00:00.000Z',
+    progress: 40,
+    notes: '',
+  },
+  {
+    id: 'enr-2',
+    studentId: 'stu-2',
+    classId: 'class-lashes-spring',
+    courseId: 'course-lashes',
+    status: 'active',
+    enrolledAt: '2026-03-05T00:00:00.000Z',
+    progress: 20,
+    notes: '',
+  },
+];
+
+export const seedOwner: OwnerUser = {
+  id: 'owner-1',
+  email: DEFAULT_ADMIN_EMAIL,
+  password: DEFAULT_ADMIN_PASSWORD,
+  name: 'NALA Owner',
+  role: 'owner',
+};
 
 export const seedTestimonials: Testimonial[] = [
   {
@@ -292,11 +519,11 @@ export const seedTestimonials: Testimonial[] = [
 ];
 
 export const seedContent: SiteContent = {
-  heroTitle: 'BEAUTY, CRAFTED FOR YOU.',
+  heroTitle: 'Beauty, crafted for you',
   heroSubtitle: 'Premium nails, lashes & beauty treatments in Kathmandu.',
   heroImage: heroImg,
-  heroCtaPrimary: 'BOOK AN APPOINTMENT',
-  heroCtaSecondary: 'EXPLORE SERVICES',
+  heroCtaPrimary: 'Book an appointment',
+  heroCtaSecondary: 'Explore services',
   aboutHeading: 'Where Beauty Meets Detail',
   aboutDescription:
     'NALA Studio is a modern beauty destination in Kathmandu specializing in nails, lashes, makeup and beauty education. Every service is personal, polished and carefully crafted — from a simple polish change to a full set of extensions, lashes or bridal makeup.',
@@ -317,6 +544,7 @@ export const seedContent: SiteContent = {
 export const seedSettings: SiteSettings = {
   formspreeFormId: DEFAULT_FORMSPREE_FORM_ID,
   adminPassword: DEFAULT_ADMIN_PASSWORD,
+  adminEmail: DEFAULT_ADMIN_EMAIL,
   studioName: BRAND.name,
   certificatePrefix: 'NALA',
   bookingTimeSlots: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
@@ -336,6 +564,11 @@ export function createSeedData(): StudioData {
       src: g.src,
       createdAt: new Date().toISOString(),
     })),
+    staff: seedStaff,
+    students: seedStudents,
+    classes: seedClasses,
+    enrollments: seedEnrollments,
+    owner: seedOwner,
     content: seedContent,
     settings: seedSettings,
     certificateCounter: 0,

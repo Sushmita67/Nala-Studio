@@ -13,6 +13,10 @@ dist
 dist-ssr
 *.local
 
+# Never commit emitted JS next to TS sources (Vite uses .tsx)
+src/**/*.js
+src/**/*.js.map
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
