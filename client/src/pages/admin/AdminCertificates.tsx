@@ -1,106 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Download, Eye, Trash2 } from 'lucide-react';
 import { useStudio } from '../../context/StudioContext';
 import { nextCertificateNumber } from '../../lib/storage';
+import {
+  certificatePdfObjectUrl,
+  downloadCertificatePdf,
+} from '../../lib/certificatePdf';
 import type { Certificate } from '../../types';
 
-/**
- * Placeholder PDF template with clearly marked merge fields:
- * {{student_name}} {{course_name}} {{completion_date}} {{certificate_id}} {{signature}}
- */
-const pdfStyles = StyleSheet.create({
-  page: {
-    padding: 40,
-    backgroundColor: '#FBF7F2',
-    fontFamily: 'Times-Roman',
-  },
-  border: {
-    borderWidth: 1,
-    borderColor: '#C4877A',
-    padding: 36,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  studio: {
-    fontSize: 14,
-    letterSpacing: 4,
-    textTransform: 'uppercase',
-    color: '#8B6F5C',
-    marginBottom: 18,
-  },
-  title: {
-    fontSize: 28,
-    color: '#2C2420',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 12,
-    color: '#7A6A5E',
-    marginBottom: 28,
-  },
-  name: {
-    fontSize: 26,
-    color: '#2C2420',
-    marginBottom: 18,
-  },
-  body: {
-    fontSize: 12,
-    color: '#7A6A5E',
-    textAlign: 'center',
-    lineHeight: 1.5,
-    marginBottom: 10,
-  },
-  meta: {
-    marginTop: 28,
-    fontSize: 11,
-    color: '#8B6F5C',
-    textAlign: 'center',
-  },
-  mergeHint: {
-    marginTop: 18,
-    fontSize: 8,
-    color: '#C4877A',
-    textAlign: 'center',
-  },
-});
-
-const CertificatePDF: React.FC<{ cert: Certificate; studioName: string }> = ({
-  cert,
-  studioName,
-}) => (
-  <Document>
-    <Page size="A4" orientation="landscape" style={pdfStyles.page}>
-      <View style={pdfStyles.border}>
-        <Text style={pdfStyles.studio}>{studioName}</Text>
-        <Text style={pdfStyles.title}>Certificate of Completion</Text>
-        <Text style={pdfStyles.subtitle}>This certifies that</Text>
-        {/* {{student_name}} */}
-        <Text style={pdfStyles.name}>{cert.studentName}</Text>
-        <Text style={pdfStyles.body}>
-          {/* {{course_name}} */}
-          has successfully completed the {cert.course} program
-          {cert.courseDuration ? ` (${cert.courseDuration})` : ''} at {studioName}.
-        </Text>
-        <Text style={pdfStyles.meta}>
-          {/* {{completion_date}} */}
-          Completed: {cert.completionDate}
-          {'\n'}
-          {/* {{signature}} */}
-          Instructor / Signature: {cert.instructorName}
-          {cert.signatureLabel ? ` · ${cert.signatureLabel}` : ''}
-          {'\n'}
-          {/* {{certificate_id}} */}
-          Certificate No: {cert.certificateNumber}
-        </Text>
-        <Text style={pdfStyles.mergeHint}>
-          Merge fields: {'{{student_name}}'} · {'{{course_name}}'} · {'{{completion_date}}'} ·{' '}
-          {'{{certificate_id}}'} · {'{{signature}}'}
-        </Text>
-      </View>
-    </Page>
-  </Document>
-);
+const today = () => new Date().toISOString().slice(0, 10);
 
 const AdminCertificates: React.FC = () => {
   const {
@@ -122,15 +30,16 @@ const AdminCertificates: React.FC = () => {
     studentId: '',
     studentName: '',
     courseId: courses[0]?.id || '',
-    course: courses[0]?.name || 'Professional Nail Course',
-    courseDuration: courses[0]?.duration || 'Flexible',
-    completionDate: new Date().toISOString().slice(0, 10),
-    instructorName: 'NALA Studio',
-    signatureLabel: 'NALA Studio',
+    course: courses[0]?.name || 'Masters Nail Course',
+    startDate: today(),
+    completionDate: today(),
+    dateAwarded: today(),
   });
   const [preview, setPreview] = useState(false);
   const [saved, setSaved] = useState<Certificate | null>(null);
   const [saving, setSaving] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   useEffect(() => {
     if (!form.courseId && courses[0]) {
@@ -138,7 +47,6 @@ const AdminCertificates: React.FC = () => {
         ...f,
         courseId: courses[0].id,
         course: courses[0].name,
-        courseDuration: courses[0].duration,
       }));
     }
   }, [courses, form.courseId]);
@@ -156,15 +64,42 @@ const AdminCertificates: React.FC = () => {
     id: saved?.id || 'preview',
     certificateNumber: saved?.certificateNumber || previewNumber,
     studentId: form.studentId || undefined,
-    studentName: form.studentName || '{{student_name}}',
+    studentName: form.studentName || 'Student Name',
     courseId: form.courseId || undefined,
-    course: form.course || '{{course_name}}',
-    courseDuration: form.courseDuration,
-    completionDate: form.completionDate || '{{completion_date}}',
-    instructorName: form.instructorName,
-    signatureLabel: form.signatureLabel || '{{signature}}',
+    course: form.course || 'Course Name',
+    startDate: form.startDate || 'YYYY-MM-DD',
+    completionDate: form.completionDate || 'YYYY-MM-DD',
+    dateAwarded: form.dateAwarded || form.completionDate || 'YYYY-MM-DD',
     createdAt: saved?.createdAt || new Date().toISOString(),
   };
+
+  useEffect(() => {
+    let revoked: string | null = null;
+    if (!preview) {
+      setPdfUrl(null);
+      return;
+    }
+    setPdfBusy(true);
+    void certificatePdfObjectUrl(draft)
+      .then((url) => {
+        revoked = url;
+        setPdfUrl(url);
+      })
+      .catch(() => setPdfUrl(null))
+      .finally(() => setPdfBusy(false));
+    return () => {
+      if (revoked) URL.revokeObjectURL(revoked);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- rebuild when draft fields change
+  }, [
+    preview,
+    draft.studentName,
+    draft.course,
+    draft.startDate,
+    draft.completionDate,
+    draft.dateAwarded,
+    draft.certificateNumber,
+  ]);
 
   const onSave = async () => {
     if (!form.studentName.trim()) {
@@ -178,10 +113,9 @@ const AdminCertificates: React.FC = () => {
         studentName: form.studentName,
         courseId: form.courseId || undefined,
         course: form.course,
-        courseDuration: form.courseDuration,
+        startDate: form.startDate,
         completionDate: form.completionDate,
-        instructorName: form.instructorName,
-        signatureLabel: form.signatureLabel,
+        dateAwarded: form.dateAwarded,
       });
       setSaved(cert);
       setPreview(true);
@@ -195,13 +129,14 @@ const AdminCertificates: React.FC = () => {
       <div>
         <h1 className="font-display text-3xl">Certificates</h1>
         <p className="mt-1 text-sm text-nala-muted">
-          Generate completion certificates (PDF template with merge fields)
+          Fills <code className="text-xs">default-certificate-template-v1.pdf</code> with student
+          data
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <form
-          className="space-y-3 rounded-md border border-nala-border bg-nala-ivory p-5 no-print"
+          className="space-y-3 rounded-xl border border-nala-border bg-nala-ivory p-5 no-print"
           onSubmit={(e) => {
             e.preventDefault();
             setPreview(true);
@@ -231,7 +166,7 @@ const AdminCertificates: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="label-nala">{'{{student_name}}'}</label>
+            <label className="label-nala">Student name</label>
             <input
               className="input-nala"
               value={form.studentName}
@@ -240,7 +175,7 @@ const AdminCertificates: React.FC = () => {
             />
           </div>
           <div>
-            <label className="label-nala">{'{{course_name}}'}</label>
+            <label className="label-nala">Course</label>
             <select
               className="input-nala"
               value={form.courseId}
@@ -250,7 +185,6 @@ const AdminCertificates: React.FC = () => {
                   ...form,
                   courseId: e.target.value,
                   course: course?.name || form.course,
-                  courseDuration: course?.duration || form.courseDuration,
                 });
               }}
             >
@@ -263,15 +197,16 @@ const AdminCertificates: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label-nala">Duration</label>
+              <label className="label-nala">Start date</label>
               <input
+                type="date"
                 className="input-nala"
-                value={form.courseDuration}
-                onChange={(e) => setForm({ ...form, courseDuration: e.target.value })}
+                value={form.startDate}
+                onChange={(e) => setForm({ ...form, startDate: e.target.value })}
               />
             </div>
             <div>
-              <label className="label-nala">{'{{completion_date}}'}</label>
+              <label className="label-nala">Completion date</label>
               <input
                 type="date"
                 className="input-nala"
@@ -281,78 +216,61 @@ const AdminCertificates: React.FC = () => {
             </div>
           </div>
           <div>
-            <label className="label-nala">{'{{signature}}'} / instructor</label>
+            <label className="label-nala">Date awarded</label>
             <input
+              type="date"
               className="input-nala"
-              value={form.instructorName}
-              onChange={(e) => setForm({ ...form, instructorName: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="label-nala">Signature label</label>
-            <input
-              className="input-nala"
-              value={form.signatureLabel}
-              onChange={(e) => setForm({ ...form, signatureLabel: e.target.value })}
+              value={form.dateAwarded}
+              onChange={(e) => setForm({ ...form, dateAwarded: e.target.value })}
             />
           </div>
           <p className="text-xs text-nala-muted">
-            Next {'{{certificate_id}}'}: <strong>{previewNumber}</strong>
+            Next certificate ID: <strong>{previewNumber}</strong>
           </p>
           <div className="flex flex-wrap gap-2 pt-2">
-            <button type="submit" className="btn-secondary">
-              Preview
+            <button type="submit" className="btn-secondary !text-[10px]">
+              <Eye size={14} />
+              Preview PDF
             </button>
-            <button type="button" className="btn-primary" onClick={onSave} disabled={saving}>
+            <button
+              type="button"
+              className="btn-primary !text-[10px]"
+              onClick={onSave}
+              disabled={saving}
+            >
               {saving ? 'Saving…' : 'Generate & Save'}
             </button>
             {preview && (
-              <PDFDownloadLink
-                document={<CertificatePDF cert={draft} studioName={settings.studioName} />}
-                fileName={`${draft.certificateNumber}.pdf`}
-                className="btn-secondary"
+              <button
+                type="button"
+                className="btn-secondary !text-[10px]"
+                onClick={() => void downloadCertificatePdf(draft)}
               >
-                {({ loading }) => (loading ? 'Preparing PDF…' : 'Download PDF')}
-              </PDFDownloadLink>
+                <Download size={14} />
+                Download PDF
+              </button>
             )}
           </div>
         </form>
 
-        <div className="flex min-h-[360px] items-center justify-center rounded-md border border-nala-rose/40 bg-nala-ivory p-8 text-center">
+        <div className="overflow-hidden rounded-xl border border-nala-rose/40 bg-nala-mist/40">
           {preview ? (
-            <div className="max-w-md">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-nala-brown">
-                {settings.studioName}
-              </p>
-              <h2 className="mt-4 font-display text-3xl text-nala-charcoal">
-                Certificate of Completion
-              </h2>
-              <p className="mt-4 text-sm text-nala-muted">This certifies that</p>
-              <p className="mt-2 font-display text-3xl text-nala-charcoal">{draft.studentName}</p>
-              <p className="mt-4 text-sm leading-relaxed text-nala-muted">
-                has successfully completed the <strong>{draft.course}</strong> program
-                {draft.courseDuration ? ` (${draft.courseDuration})` : ''}.
-              </p>
-              <div className="mt-6 space-y-1 text-xs text-nala-brown">
-                <p>Completed: {draft.completionDate}</p>
-                <p>
-                  Signature: {draft.instructorName}
-                  {draft.signatureLabel ? ` · ${draft.signatureLabel}` : ''}
-                </p>
-                <p>Certificate No: {draft.certificateNumber}</p>
+            pdfBusy || !pdfUrl ? (
+              <div className="flex min-h-[360px] items-center justify-center text-sm text-nala-muted">
+                Preparing template PDF…
               </div>
-              <p className="mt-6 text-[10px] text-nala-rose">
-                Template merge fields: {'{{student_name}}'} {'{{course_name}}'}{' '}
-                {'{{completion_date}}'} {'{{certificate_id}}'} {'{{signature}}'}
-              </p>
-            </div>
+            ) : (
+              <iframe title="Certificate preview" src={pdfUrl} className="h-[420px] w-full bg-white" />
+            )
           ) : (
-            <p className="text-sm text-nala-muted">Preview will appear here</p>
+            <div className="flex min-h-[360px] items-center justify-center p-8 text-center text-sm text-nala-muted">
+              Preview loads the official certificate template with filled fields
+            </div>
           )}
         </div>
       </div>
 
-      <div className="rounded-md border border-nala-border bg-nala-ivory no-print">
+      <div className="rounded-xl border border-nala-border bg-nala-ivory no-print">
         <div className="border-b border-nala-border px-5 py-4">
           <h2 className="font-display text-xl">
             {form.studentId ? 'Certificates for selected student' : 'Saved certificates'}
@@ -360,13 +278,13 @@ const AdminCertificates: React.FC = () => {
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-nala-soft text-[11px] uppercase tracking-[0.12em] text-nala-muted">
+            <thead className="bg-nala-soft text-[10px] uppercase tracking-[0.12em] text-nala-muted">
               <tr>
                 <th className="px-4 py-3">Number</th>
                 <th className="px-4 py-3">Student</th>
                 <th className="px-4 py-3">Course</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3" />
+                <th className="px-4 py-3">Awarded</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -375,44 +293,48 @@ const AdminCertificates: React.FC = () => {
                   <td className="px-4 py-3 font-medium">{c.certificateNumber}</td>
                   <td className="px-4 py-3">{c.studentName}</td>
                   <td className="px-4 py-3">{c.course}</td>
-                  <td className="px-4 py-3">{c.completionDate}</td>
-                  <td className="px-4 py-3 text-right">
-                    <PDFDownloadLink
-                      document={<CertificatePDF cert={c} studioName={settings.studioName} />}
-                      fileName={`${c.certificateNumber}.pdf`}
-                      className="btn-ghost"
-                    >
-                      {({ loading }) => (loading ? '…' : 'Re-download')}
-                    </PDFDownloadLink>
-                    <button
-                      type="button"
-                      className="btn-ghost"
-                      onClick={() => {
-                        setForm({
-                          studentId: c.studentId || '',
-                          studentName: c.studentName,
-                          courseId: c.courseId || '',
-                          course: c.course,
-                          courseDuration: c.courseDuration,
-                          completionDate: c.completionDate,
-                          instructorName: c.instructorName,
-                          signatureLabel: c.signatureLabel || 'NALA Studio',
-                        });
-                        setSaved(c);
-                        setPreview(true);
-                      }}
-                    >
-                      View
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-ghost text-red-700"
-                      onClick={() => {
-                        if (confirm('Delete certificate?')) void deleteCertificate(c.id);
-                      }}
-                    >
-                      Delete
-                    </button>
+                  <td className="px-4 py-3">{c.dateAwarded || c.completionDate}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em]"
+                        onClick={() => void downloadCertificatePdf(c)}
+                      >
+                        <Download size={12} />
+                        PDF
+                      </button>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em]"
+                        onClick={() => {
+                          setForm({
+                            studentId: c.studentId || '',
+                            studentName: c.studentName,
+                            courseId: c.courseId || '',
+                            course: c.course,
+                            startDate: c.startDate || '',
+                            completionDate: c.completionDate,
+                            dateAwarded: c.dateAwarded || c.completionDate,
+                          });
+                          setSaved(c);
+                          setPreview(true);
+                        }}
+                      >
+                        <Eye size={12} />
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-red-800"
+                        onClick={() => {
+                          if (confirm('Delete certificate?')) void deleteCertificate(c.id);
+                        }}
+                      >
+                        <Trash2 size={12} />
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

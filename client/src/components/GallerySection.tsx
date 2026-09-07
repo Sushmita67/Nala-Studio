@@ -1,10 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 import { useStudio } from '../context/StudioContext';
 import { GALLERY_FILTERS, type GalleryCategory } from '../types';
 import SectionHeader from './SectionHeader';
 import Lightbox from './Lightbox';
+import Container from './ui/Container';
+import FadeIn from './ui/FadeIn';
+import Button from './ui/Button';
+import { tokens } from '../lib/design-tokens';
+import { cn } from '../lib/cn';
 
 interface GallerySectionProps {
   featuredOnly?: boolean;
@@ -26,7 +30,6 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const { gallery } = useStudio();
   const [filter, setFilter] = useState<'all' | GalleryCategory>('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const reduceMotion = useReducedMotion();
 
   const filtered = useMemo(() => {
     let items = featuredOnly ? gallery.filter((g) => g.featured) : gallery;
@@ -36,71 +39,74 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   }, [featuredOnly, filter, gallery, limit]);
 
   return (
-    <section id="gallery" className="section-pad bg-nala-ivory">
-      <div className="container-nala">
+    <section id="gallery" className={cn(tokens.section.md, 'bg-nala-ivory')}>
+      <Container>
         <SectionHeader
           eyebrow="Gallery"
           title={title}
           description={subtitle}
           action={
             showViewAll ? (
-              <Link to="/gallery" className="btn-ghost hidden sm:inline-flex">
-                Full gallery →
-              </Link>
+              <Button to="/gallery" variant="ghost" className="hidden sm:inline-flex">
+                Full gallery
+                <ArrowRight size={16} />
+              </Button>
             ) : undefined
           }
         />
 
         {showFilters && (
-          <div
-            className="mb-8 flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
-            role="tablist"
-            aria-label="Gallery categories"
-          >
-            {GALLERY_FILTERS.map((item) => {
-              const selected = filter === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  onClick={() => setFilter(item.id as 'all' | GalleryCategory)}
-                  className={`shrink-0 rounded-[var(--radius-sm)] px-4 py-2.5 text-caption font-medium uppercase transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush ${
-                    selected
-                      ? 'bg-nala-charcoal text-nala-ivory'
-                      : 'border border-nala-border text-nala-muted hover:border-nala-charcoal hover:text-nala-charcoal'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
+          <FadeIn className="mb-8">
+            <div
+              className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+              role="tablist"
+              aria-label="Gallery categories"
+            >
+              {GALLERY_FILTERS.map((item) => {
+                const selected = filter === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setFilter(item.id as 'all' | GalleryCategory)}
+                    className={cn(
+                      'shrink-0 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] transition-all',
+                      tokens.focus,
+                      selected
+                        ? 'bg-nala-charcoal text-nala-ivory'
+                        : 'border border-nala-border text-nala-muted hover:border-nala-charcoal hover:text-nala-charcoal'
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </FadeIn>
         )}
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
           {filtered.map((item, index) => (
-            <motion.button
-              key={item.id}
-              type="button"
-              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-20px' }}
-              transition={{ delay: Math.min(index * 0.03, 0.24) }}
-              className={`group relative overflow-hidden rounded-[var(--radius-sm)] bg-nala-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush ${
-                index % 5 === 0 ? 'md:row-span-1' : ''
-              }`}
-              onClick={() => setLightboxIndex(index)}
-              aria-label={`View ${item.caption || 'gallery image'}`}
-            >
-              <img
-                src={item.src}
-                alt={item.caption || 'NALA Studio gallery'}
-                className="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.03] md:aspect-[4/5]"
-                loading="lazy"
-              />
-            </motion.button>
+            <FadeIn key={item.id} delay={Math.min(index * 0.04, 0.28)}>
+              <button
+                type="button"
+                className={cn(
+                  'group relative block w-full overflow-hidden bg-nala-mist image-frame',
+                  tokens.focus
+                )}
+                onClick={() => setLightboxIndex(index)}
+                aria-label={`View ${item.caption || 'gallery image'}`}
+              >
+                <img
+                  src={item.src}
+                  alt={item.caption || 'NALA Studio gallery'}
+                  className="aspect-square w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] md:aspect-[4/5]"
+                  loading="lazy"
+                />
+              </button>
+            </FadeIn>
           ))}
         </div>
 
@@ -110,12 +116,12 @@ const GallerySection: React.FC<GallerySectionProps> = ({
 
         {showViewAll && (
           <div className="mt-10 text-center sm:hidden">
-            <Link to="/gallery" className="btn-secondary">
+            <Button to="/gallery" variant="secondary">
               View full gallery
-            </Link>
+            </Button>
           </div>
         )}
-      </div>
+      </Container>
 
       {lightboxIndex !== null && (
         <Lightbox

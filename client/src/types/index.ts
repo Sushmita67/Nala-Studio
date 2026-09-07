@@ -1,4 +1,9 @@
-export type ServiceCategory = 'nails' | 'lashes' | 'brows' | 'beauty' | 'courses';
+export type ServiceCategory =
+  | 'lashes'
+  | 'gel-nails'
+  | 'pedicure'
+  | 'manicure'
+  | 'courses';
 
 export type GalleryCategory =
   | 'nails'
@@ -77,9 +82,16 @@ export interface Certificate {
   studentName: string;
   courseId?: string;
   course: string;
-  courseDuration: string;
+  /** Course period start (shown as “from … to …” under the course name). */
+  startDate: string;
   completionDate: string;
-  instructorName: string;
+  /** Bottom-left field on the certificate template. */
+  dateAwarded: string;
+  /** @deprecated Prefer startDate + completionDate; kept for older saved certs. */
+  courseDuration?: string;
+  /** @deprecated Template includes signatory; no longer filled. */
+  instructorName?: string;
+  /** @deprecated Template includes signatory; no longer filled. */
   signatureLabel?: string;
   createdAt: string;
 }
@@ -173,10 +185,20 @@ export interface OwnerUser {
   role: 'owner';
 }
 
+export interface HeroSlide {
+  id: string;
+  src: string;
+  alt: string;
+  order: number;
+  active: boolean;
+}
+
 export interface SiteContent {
   heroTitle: string;
   heroSubtitle: string;
+  /** Fallback / OG image — kept in sync with the first active hero slide */
   heroImage: string;
+  heroSlides: HeroSlide[];
   heroCtaPrimary: string;
   heroCtaSecondary: string;
   aboutHeading: string;
@@ -242,9 +264,9 @@ export const GALLERY_CATEGORY_OPTIONS: { value: GalleryCategory; label: string }
 ];
 
 export const SERVICE_CATEGORY_OPTIONS: { value: ServiceCategory; label: string }[] = [
-  { value: 'nails', label: 'Nails' },
-  { value: 'lashes', label: 'Lashes' },
-  { value: 'brows', label: 'Brows' },
-  { value: 'beauty', label: 'Beauty' },
+  { value: 'lashes', label: 'Eyelash Extensions' },
+  { value: 'gel-nails', label: 'Gel Nails & Extensions' },
+  { value: 'pedicure', label: 'Pedicure' },
+  { value: 'manicure', label: 'Manicure' },
   { value: 'courses', label: 'Courses' },
 ];

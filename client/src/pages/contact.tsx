@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import ContactSection from '../components/ContactSection';
+import Button from '../components/ui/Button';
 
 const ContactPage: React.FC = () => {
   return (
@@ -14,11 +14,7 @@ const ContactPage: React.FC = () => {
           { label: 'Home', to: '/' },
           { label: 'Contact' },
         ]}
-        actions={
-          <Link to="/book" className="btn-primary">
-            Book appointment
-          </Link>
-        }
+        actions={<Button to="/book">Book appointment</Button>}
       />
       <ContactSection />
     </>

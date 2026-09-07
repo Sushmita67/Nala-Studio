@@ -249,10 +249,10 @@ export const certificateService = {
         studentName: input.studentName,
         courseId: input.courseId,
         course: input.course,
-        courseDuration: input.courseDuration,
+        startDate: input.startDate,
         completionDate: input.completionDate,
-        instructorName: input.instructorName,
-        signatureLabel: input.signatureLabel || 'NALA Studio',
+        dateAwarded: input.dateAwarded || input.completionDate,
+        courseDuration: input.courseDuration,
         createdAt: new Date().toISOString(),
       };
       return {

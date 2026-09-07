@@ -1,179 +1,218 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { ArrowRight, ChevronDown, Mail, Menu, Lock } from 'lucide-react';
 import Logo from './Logo';
-import { useStudio } from '../context/StudioContext';
+import MobileMenu from './ui/MobileMenu';
+import ServicesMegaMenu from './ui/ServicesMegaMenu';
+import Container from './ui/Container';
+import { cn } from '../lib/cn';
 
 const navItems = [
   { to: '/about', label: 'About' },
-  { to: '/services', label: 'Services' },
   { to: '/gallery', label: 'Gallery' },
   { to: '/courses', label: 'Academy' },
-  { to: '/contact', label: 'Contact' },
 ];
 
 const Navbar: React.FC = () => {
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const { content } = useStudio();
-  const menuId = useId();
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const openRef = useRef<HTMLButtonElement>(null);
+  const closeTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => {
-    setOpen(false);
-  }, [location.pathname]);
+    setServicesOpen(false);
+    setMobileOpen(false);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    closeRef.current?.focus();
-
+    if (!servicesOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') setServicesOpen(false);
     };
     window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener('keydown', onKey);
-      openRef.current?.focus();
-    };
-  }, [open]);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [servicesOpen]);
 
-  const solid = scrolled || open || location.pathname !== '/';
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    };
+  }, []);
+
+  const clearClose = () => {
+    if (closeTimer.current) {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  const openServices = () => {
+    clearClose();
+    setServicesOpen(true);
+  };
+
+  const scheduleClose = () => {
+    clearClose();
+    closeTimer.current = window.setTimeout(() => setServicesOpen(false), 320);
+  };
+
+  const closeServicesNow = () => {
+    clearClose();
+    setServicesOpen(false);
+  };
+
+  const servicesActive =
+    location.pathname.startsWith('/services') ||
+    location.pathname.startsWith('/book');
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-header transition-[background,box-shadow,border-color] duration-250 ${
-        solid
-          ? 'border-b border-nala-border/70 bg-nala-ivory/95 shadow-soft backdrop-blur-md'
-          : 'border-b border-transparent bg-transparent'
-      }`}
-    >
-      <div className="container-nala flex h-[var(--header-h)] items-center justify-between gap-6">
-        <Link to="/" className="relative z-10 flex shrink-0 items-center" aria-label="NALA Studio home">
-          <Logo size="navbar" />
-        </Link>
-
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `nav-link ${isActive ? 'nav-link-active' : ''}`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-5 lg:flex">
-          <a
-            href={`tel:${content.phone}`}
-            className="text-sm tracking-wide text-nala-muted transition hover:text-nala-charcoal"
-          >
-            {content.phone}
-          </a>
-          <Link to="/book" className="btn-primary !px-5 !py-2.5">
-            Book
+    <>
+      <header
+        className={cn(
+          'fixed inset-x-0 top-0 z-50 border-b bg-white/95 backdrop-blur-xl transition-shadow duration-300',
+          scrolled || servicesOpen
+            ? 'border-nala-border/70 shadow-[0_8px_30px_rgba(44,36,32,0.06)]'
+            : 'border-nala-border/40'
+        )}
+      >
+        <Container className="relative flex h-14 items-center justify-between gap-4 lg:h-16">
+          <Link to="/" className="relative z-10 shrink-0" aria-label="NALA Studio home">
+            <Logo size="navbar" />
           </Link>
-        </div>
 
-        <button
-          ref={openRef}
-          type="button"
-          className="relative z-10 -mr-2 rounded-sm p-2 text-nala-charcoal lg:hidden"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          aria-controls={menuId}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id={menuId}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile navigation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-overlay bg-nala-ivory lg:hidden"
+          <nav
+            className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 lg:flex"
+            aria-label="Primary"
           >
-            <div className="container-nala flex h-[var(--header-h)] items-center justify-between">
-              <Link to="/" onClick={() => setOpen(false)} aria-label="NALA Studio home">
-                <Logo size="navbar" />
-              </Link>
+            <div onMouseEnter={openServices} onMouseLeave={scheduleClose}>
               <button
-                ref={closeRef}
                 type="button"
-                className="-mr-2 rounded-sm p-2"
-                aria-label="Close menu"
-                onClick={() => setOpen(false)}
+                aria-expanded={servicesOpen}
+                aria-haspopup="true"
+                onClick={() =>
+                  setServicesOpen((v) => {
+                    clearClose();
+                    return !v;
+                  })
+                }
+                className={cn(
+                  'font-ui inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-medium tracking-[-0.01em] text-nala-charcoal/70 transition-all duration-200 hover:text-nala-charcoal',
+                  (servicesOpen || servicesActive) &&
+                    'border border-nala-charcoal/25 text-nala-charcoal'
+                )}
               >
-                <X className="h-6 w-6" aria-hidden />
+                Services
+                <ChevronDown
+                  size={12}
+                  className={cn(
+                    'transition-transform duration-200',
+                    servicesOpen && 'rotate-180'
+                  )}
+                />
               </button>
             </div>
 
-            <nav className="container-nala flex flex-col gap-1 pb-10 pt-6" aria-label="Mobile primary">
-              {navItems.map((item, i) => (
-                <motion.div
-                  key={item.to}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.04 * i, duration: 0.25 }}
-                >
-                  <NavLink
-                    to={item.to}
-                    className={({ isActive }) =>
-                      `block border-b border-nala-border/50 py-4 font-display text-3xl ${
-                        isActive ? 'text-nala-charcoal' : 'text-nala-muted'
-                      }`
-                    }
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                  </NavLink>
-                </motion.div>
-              ))}
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onMouseEnter={closeServicesNow}
+                className={({ isActive }) =>
+                  cn(
+                    'font-ui rounded-full px-3 py-1.5 text-[11px] font-medium tracking-[-0.01em] transition-colors duration-200',
+                    isActive
+                      ? 'text-nala-charcoal'
+                      : 'text-nala-charcoal/55 hover:text-nala-charcoal'
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
 
-              <div className="mt-10 space-y-4">
-                <Link to="/book" className="btn-primary w-full" onClick={() => setOpen(false)}>
-                  Book an appointment
-                </Link>
-                <a
-                  href={`tel:${content.phone}`}
-                  className="btn-secondary w-full"
-                  onClick={() => setOpen(false)}
-                >
-                  Call {content.phone}
-                </a>
-                <p className="pt-2 text-center text-sm text-nala-muted">
-                  Nails · Lashes · Makeup · Kathmandu
-                </p>
+          <div
+            className="flex items-center gap-1.5 sm:gap-2"
+            onMouseEnter={closeServicesNow}
+          >
+            <Link
+              to="/admin/login"
+              className="font-ui hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium text-nala-muted transition hover:text-nala-charcoal lg:inline-flex"
+              aria-label="Admin login"
+              title="Studio admin"
+            >
+              <Lock size={12} strokeWidth={2} />
+              Admin
+            </Link>
+            <Link
+              to="/contact"
+              className="font-ui hidden items-center gap-1.5 rounded-full border border-nala-charcoal/20 px-3 py-1.5 text-[11px] font-medium text-nala-charcoal transition hover:border-nala-charcoal/40 hover:bg-nala-mist/60 md:inline-flex"
+            >
+              <Mail size={12} strokeWidth={2} />
+              Contact
+            </Link>
+            <Link
+              to="/book"
+              className="font-ui group hidden items-center justify-center gap-1.5 rounded-full bg-nala-charcoal px-3.5 py-1.5 text-[11px] font-semibold tracking-[-0.01em] text-white transition hover:bg-nala-brown sm:inline-flex"
+            >
+              Book now
+              <ArrowRight
+                size={12}
+                strokeWidth={2.25}
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+              />
+            </Link>
+
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-full p-2 text-nala-charcoal transition hover:bg-nala-mist lg:hidden"
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(true)}
+            >
+              <Menu size={20} strokeWidth={1.75} />
+            </button>
+          </div>
+        </Container>
+
+        <AnimatePresence>
+          {servicesOpen && (
+            <div
+              className="absolute inset-x-0 top-full z-[60] hidden lg:block"
+              onMouseEnter={openServices}
+              onMouseLeave={scheduleClose}
+            >
+              <div className="pointer-events-auto absolute inset-x-0 -top-8 h-8" aria-hidden />
+              <div className="mx-auto max-w-6xl px-4 pb-6 pt-1">
+                <ServicesMegaMenu onNavigate={closeServicesNow} />
               </div>
-            </nav>
-          </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      <AnimatePresence>
+        {servicesOpen && (
+          <button
+            type="button"
+            aria-label="Close services menu"
+            className="fixed inset-x-0 bottom-0 top-14 z-[40] hidden bg-black/10 lg:block lg:top-16"
+            onClick={closeServicesNow}
+          />
         )}
       </AnimatePresence>
-    </header>
+
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
+    </>
   );
 };
 

@@ -16,11 +16,11 @@ interface BookingProps {
 }
 
 const categories: { id: ServiceCategory; label: string }[] = [
-  { id: 'nails', label: 'Nails' },
-  { id: 'lashes', label: 'Lashes' },
-  { id: 'brows', label: 'Brows' },
-  { id: 'beauty', label: 'Beauty' },
-  { id: 'courses', label: 'Academy' },
+  { id: 'lashes', label: 'Eyelash Extensions' },
+  { id: 'gel-nails', label: 'Gel Nails & Extensions' },
+  { id: 'pedicure', label: 'Pedicure' },
+  { id: 'manicure', label: 'Manicure' },
+  { id: 'courses', label: 'Courses' },
 ];
 
 const detailsSchema = z.object({
@@ -41,7 +41,6 @@ type DetailsForm = z.infer<typeof detailsSchema>;
 const stepOrder = [
   'category',
   'services',
-  'staff',
   'datetime',
   'details',
   'review',
@@ -51,7 +50,6 @@ const stepOrder = [
 const stepLabels = [
   'Category',
   'Services',
-  'Artist',
   'Date & Time',
   'Details',
   'Review',
@@ -60,7 +58,7 @@ const stepLabels = [
 
 const Booking: React.FC<BookingProps> = ({ showToast }) => {
   const [searchParams] = useSearchParams();
-  const { activeServices, settings, formatDuration, addBooking, staff } = useStudio();
+  const { activeServices, settings, formatDuration, addBooking } = useStudio();
   const [formspreeState, handleFormspree] = useFormspree(settings.formspreeFormId || 'manppgvr');
   const [submitting, setSubmitting] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => {
@@ -106,8 +104,17 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
     if (!svc) return;
     setCategory(svc.category);
     setServices([svc.id]);
-    setStep('staff');
-  }, [searchParams, activeServices, setCategory, setServices, setStep]);
+    setStaff(null, true);
+    setStep('datetime');
+  }, [searchParams, activeServices, setCategory, setServices, setStaff, setStep]);
+
+  // Skip legacy artist step if store still has it
+  useEffect(() => {
+    if (step === 'staff') {
+      setStaff(null, true);
+      setStep('datetime');
+    }
+  }, [step, setStaff, setStep]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -123,23 +130,14 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
     return activeServices.filter((s) => s.category === draft.category);
   }, [activeServices, draft.category]);
 
-  const eligibleStaff = useMemo(() => {
-    if (!draft.serviceIds.length) return staff;
-    return staff.filter((m) =>
-      draft.serviceIds.every(
-        (sid) => !m.serviceIds.length || m.serviceIds.includes(sid)
-      )
-    );
-  }, [staff, draft.serviceIds]);
-
   const availableSlots = useMemo(() => {
     if (!draft.date) return [];
     return bookingService.getAvailableSlots(
       draft.date,
-      draft.noPreference ? null : draft.staffId,
+      null,
       settings.bookingTimeSlots
     );
-  }, [draft.date, draft.staffId, draft.noPreference, settings.bookingTimeSlots]);
+  }, [draft.date, settings.bookingTimeSlots]);
 
   const stepIndex = stepOrder.indexOf(step);
 
@@ -199,10 +197,7 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
     setSubmitting(true);
     try {
       const serviceName = selectedServices.map((s) => s.name).join(' + ');
-      const staffMember = staff.find((s) => s.id === draft.staffId);
-      const preferredArtist = draft.noPreference
-        ? 'No preference'
-        : staffMember?.name || 'No preference';
+      const preferredArtist = 'No preference';
 
       const booking = await addBooking({
         serviceIds: draft.serviceIds,
@@ -215,7 +210,7 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
         email: draft.email,
         message: draft.notes,
         preferredArtist,
-        staffId: draft.noPreference ? null : draft.staffId,
+        staffId: null,
         totalPrice: null,
         status: 'pending',
       });
@@ -253,7 +248,7 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
   };
 
   return (
-    <div className="container-nala py-10 pt-24 lg:py-16 lg:pt-28">
+    <div className="container-nala py-10 lg:py-16">
       <div className="mx-auto max-w-3xl">
         <p className="section-label mb-3">Book</p>
         <h1 className="section-title mb-2">Book an appointment</h1>
@@ -262,23 +257,60 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
         </p>
 
         {/* Progress */}
-        <ol className="mb-10 flex flex-wrap gap-2">
-          {stepLabels.map((label, i) => (
-            <li
-              key={label}
-              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.12em] ${
-                i <= stepIndex
-                  ? 'bg-nala-charcoal text-nala-ivory'
-                  : 'bg-nala-mist text-nala-muted'
-              }`}
-            >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-[10px]">
-                {i < stepIndex ? <Check className="h-3 w-3" /> : i + 1}
-              </span>
-              <span className="hidden sm:inline">{label}</span>
-            </li>
-          ))}
-        </ol>
+        <div className="mb-10">
+          <div className="mb-3 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-nala-muted">
+                Step {Math.min(stepIndex + 1, stepLabels.length)} of {stepLabels.length}
+              </p>
+              <p className="mt-1 font-display text-xl text-nala-charcoal sm:text-2xl">
+                {stepLabels[Math.min(stepIndex, stepLabels.length - 1)]}
+              </p>
+            </div>
+            <p className="hidden text-sm text-nala-muted sm:block">
+              {Math.round(((stepIndex + (step === 'confirmed' ? 1 : 0)) / stepLabels.length) * 100)}%
+            </p>
+          </div>
+          <div
+            className="h-1.5 overflow-hidden rounded-full bg-nala-mist"
+            role="progressbar"
+            aria-valuenow={stepIndex + 1}
+            aria-valuemin={1}
+            aria-valuemax={stepLabels.length}
+            aria-label="Booking progress"
+          >
+            <motion.div
+              className="h-full rounded-full bg-nala-rose"
+              initial={false}
+              animate={{
+                width: `${((stepIndex + (step === 'confirmed' ? 1 : 0.35)) / stepLabels.length) * 100}%`,
+              }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </div>
+          <ol className="mt-4 hidden items-center gap-1 sm:flex" aria-hidden>
+            {stepLabels.map((label, i) => (
+              <li key={label} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
+                <span
+                  className={`h-1.5 w-full rounded-full transition-colors ${
+                    i <= stepIndex ? 'bg-nala-charcoal' : 'bg-nala-border'
+                  }`}
+                />
+                <span
+                  className={`truncate text-[10px] uppercase tracking-[0.1em] ${
+                    i === stepIndex
+                      ? 'font-medium text-nala-charcoal'
+                      : i < stepIndex
+                        ? 'text-nala-brown'
+                        : 'text-nala-muted/70'
+                  }`}
+                >
+                  {label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -373,66 +405,14 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
                     type="button"
                     className="btn-primary"
                     disabled={!draft.serviceIds.length}
-                    onClick={goNext}
+                    onClick={() => {
+                      setStaff(null, true);
+                      setStep('datetime');
+                    }}
                   >
                     Continue
                   </button>
                 </div>
-              </div>
-            )}
-
-            {step === 'staff' && (
-              <div className="space-y-5">
-                <h2 className="font-display text-2xl">Preferred artist</h2>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStaff(null, true);
-                    setStep('datetime');
-                  }}
-                  className={`w-full rounded-md border p-4 text-left transition ${
-                    draft.noPreference
-                      ? 'border-nala-charcoal bg-nala-soft'
-                      : 'border-nala-border hover:border-nala-blush'
-                  }`}
-                >
-                  <p className="font-medium">No preference</p>
-                  <p className="mt-1 text-sm text-nala-muted">
-                    We&apos;ll match you with the best available artist.
-                  </p>
-                </button>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {eligibleStaff.map((member) => (
-                    <button
-                      key={member.id}
-                      type="button"
-                      onClick={() => {
-                        setStaff(member.id, false);
-                        setStep('datetime');
-                      }}
-                      className={`rounded-md border p-4 text-left transition ${
-                        draft.staffId === member.id && !draft.noPreference
-                          ? 'border-nala-charcoal bg-nala-soft'
-                          : 'border-nala-border hover:border-nala-blush'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={member.image}
-                          alt=""
-                          className="h-12 w-12 rounded-full object-cover"
-                        />
-                        <div>
-                          <p className="font-medium">{member.name}</p>
-                          <p className="text-xs text-nala-muted">{member.title}</p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <button type="button" className="btn-ghost" onClick={goBack}>
-                  <ChevronLeft className="h-4 w-4" /> Back
-                </button>
               </div>
             )}
 
@@ -620,14 +600,6 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
                     <dt className="text-nala-muted">Services</dt>
                     <dd className="text-right font-medium">
                       {selectedServices.map((s) => s.name).join(' + ')}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-4 border-b border-nala-border/60 py-2">
-                    <dt className="text-nala-muted">Artist</dt>
-                    <dd className="font-medium">
-                      {draft.noPreference
-                        ? 'No preference'
-                        : staff.find((s) => s.id === draft.staffId)?.name}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4 border-b border-nala-border/60 py-2">

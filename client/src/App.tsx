@@ -62,7 +62,7 @@ function App() {
           <Route
             path="/"
             element={
-              <PublicLayout toast={toast} clearToast={() => setToast(null)}>
+              <PublicLayout toast={toast} clearToast={() => setToast(null)} flushTop>
                 <Homepage />
               </PublicLayout>
             }

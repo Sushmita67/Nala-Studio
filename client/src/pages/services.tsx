@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import ServicesSection from '../components/ServicesSection';
+import Button from '../components/ui/Button';
 
 const ServicesPage: React.FC = () => {
   return (
@@ -9,16 +9,12 @@ const ServicesPage: React.FC = () => {
       <PageHeader
         eyebrow="Services"
         title="Treatments"
-        description="Explore nails, lashes, brows and beauty treatments. Contact us for pricing, then book a time that works for you."
+        description="Explore eyelash extensions, gel nails, manicure, pedicure and courses. Contact us for pricing, then book a time that works for you."
         breadcrumbs={[
           { label: 'Home', to: '/' },
           { label: 'Services' },
         ]}
-        actions={
-          <Link to="/book" className="btn-primary">
-            Book now
-          </Link>
-        }
+        actions={<Button to="/book">Book now</Button>}
       />
       <ServicesSection limitPerCategory={0} showViewAll={false} />
     </>

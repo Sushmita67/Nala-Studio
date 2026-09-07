@@ -1,5 +1,9 @@
 import React from 'react';
 import SectionHeader from './SectionHeader';
+import Container from './ui/Container';
+import FadeIn from './ui/FadeIn';
+import { tokens } from '../lib/design-tokens';
+import { cn } from '../lib/cn';
 
 const benefits = [
   {
@@ -26,19 +30,21 @@ const benefits = [
 
 const WhyNalaSection: React.FC = () => {
   return (
-    <section className="section-pad bg-nala-cream">
-      <div className="container-nala">
+    <section className={cn(tokens.section.md, 'bg-nala-cream')}>
+      <Container>
         <SectionHeader eyebrow="Why NALA" title="A studio built on care" />
         <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map((item) => (
-            <div key={item.num} className="border-t border-nala-border pt-6">
-              <span className="text-caption font-medium uppercase text-nala-rose">{item.num}</span>
-              <h3 className="mt-3 font-display text-2xl text-nala-charcoal">{item.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-nala-muted">{item.text}</p>
-            </div>
+          {benefits.map((item, i) => (
+            <FadeIn key={item.num} delay={i * 0.08}>
+              <div className="border-t border-nala-border pt-6">
+                <span className={tokens.type.overline}>{item.num}</span>
+                <h3 className={cn(tokens.type.h3, 'mt-3')}>{item.title}</h3>
+                <p className={cn(tokens.type.body, 'mt-3 text-sm')}>{item.text}</p>
+              </div>
+            </FadeIn>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

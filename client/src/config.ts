@@ -2,8 +2,8 @@
 export const DEFAULT_FORMSPREE_FORM_ID = 'manppgvr';
 
 /** Bump when seed shape / public UI changes so stale localStorage refreshes */
-export const STORAGE_KEY = 'nala-studio-data-v3';
-export const ADMIN_SESSION_KEY = 'nala-admin-session-v3';
+export const STORAGE_KEY = 'nala-studio-data-v5';
+export const ADMIN_SESSION_KEY = 'nala-admin-session-v5';
 
 export const DEFAULT_ADMIN_EMAIL = 'owner@nalastudio.com.np';
 export const DEFAULT_ADMIN_PASSWORD = 'nala2026';

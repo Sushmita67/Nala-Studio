@@ -1,9 +1,43 @@
 import { STORAGE_KEY } from '../config';
 import { createSeedData } from '../data/seed';
-import type { StudioData } from '../types';
+import type { Certificate, HeroSlide, SiteContent, StudioData } from '../types';
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function normalizeContent(seed: SiteContent, raw?: Partial<SiteContent>): SiteContent {
+  const merged = { ...seed, ...(raw || {}) };
+  const slides = Array.isArray(merged.heroSlides) ? merged.heroSlides : [];
+  const heroSlides: HeroSlide[] =
+    slides.length > 0
+      ? slides
+          .map((s, i) => ({
+            id: String(s.id || `slide-${i + 1}`),
+            src: String(s.src || ''),
+            alt: String(s.alt || 'NALA Studio'),
+            order: typeof s.order === 'number' ? s.order : i + 1,
+            active: s.active !== false,
+          }))
+          .filter((s) => s.src)
+      : merged.heroImage
+        ? [
+            {
+              id: 'slide-legacy',
+              src: merged.heroImage,
+              alt: 'NALA Studio',
+              order: 1,
+              active: true,
+            },
+          ]
+        : seed.heroSlides;
+
+  const firstActive = [...heroSlides].sort((a, b) => a.order - b.order).find((s) => s.active);
+  return {
+    ...merged,
+    heroSlides,
+    heroImage: firstActive?.src || merged.heroImage || seed.heroImage,
+  };
 }
 
 function normalizeBooking(raw: Record<string, unknown>, index: number) {
@@ -33,6 +67,25 @@ function normalizeBooking(raw: Record<string, unknown>, index: number) {
   };
 }
 
+function normalizeCertificate(raw: Record<string, unknown>, index: number): Certificate {
+  const completionDate = String(raw.completionDate || '');
+  return {
+    id: String(raw.id || `cert-legacy-${index}`),
+    certificateNumber: String(raw.certificateNumber || ''),
+    studentId: raw.studentId ? String(raw.studentId) : undefined,
+    studentName: String(raw.studentName || ''),
+    courseId: raw.courseId ? String(raw.courseId) : undefined,
+    course: String(raw.course || ''),
+    startDate: String(raw.startDate || ''),
+    completionDate,
+    dateAwarded: String(raw.dateAwarded || completionDate),
+    courseDuration: raw.courseDuration ? String(raw.courseDuration) : undefined,
+    instructorName: raw.instructorName ? String(raw.instructorName) : undefined,
+    signatureLabel: raw.signatureLabel ? String(raw.signatureLabel) : undefined,
+    createdAt: String(raw.createdAt || new Date().toISOString()),
+  };
+}
+
 /** Repository seam — swap localStorage for API calls later without touching components. */
 export function loadStudioData(): StudioData {
   const seed = createSeedData();
@@ -49,7 +102,11 @@ export function loadStudioData(): StudioData {
       gallery: Array.isArray(parsed.gallery) ? parsed.gallery : seed.gallery,
       courses: Array.isArray(parsed.courses) ? parsed.courses : seed.courses,
       testimonials: Array.isArray(parsed.testimonials) ? parsed.testimonials : seed.testimonials,
-      certificates: Array.isArray(parsed.certificates) ? parsed.certificates : seed.certificates,
+      certificates: Array.isArray(parsed.certificates)
+        ? parsed.certificates.map((c, i) =>
+            normalizeCertificate(c as unknown as Record<string, unknown>, i)
+          )
+        : seed.certificates,
       bookings: Array.isArray(parsed.bookings)
         ? parsed.bookings.map((b, i) => normalizeBooking(b as unknown as Record<string, unknown>, i))
         : seed.bookings,
@@ -59,7 +116,7 @@ export function loadStudioData(): StudioData {
       classes: Array.isArray(parsed.classes) ? parsed.classes : seed.classes,
       enrollments: Array.isArray(parsed.enrollments) ? parsed.enrollments : seed.enrollments,
       owner: parsed.owner ? { ...seed.owner, ...parsed.owner } : seed.owner,
-      content: { ...seed.content, ...(parsed.content || {}) },
+      content: normalizeContent(seed.content, parsed.content),
       settings: { ...seed.settings, ...(parsed.settings || {}) },
       certificateCounter:
         typeof parsed.certificateCounter === 'number'

@@ -1,5 +1,8 @@
 import React from 'react';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
+import Container from './ui/Container';
+import { tokens } from '../lib/design-tokens';
+import { cn } from '../lib/cn';
 
 interface PageHeaderProps {
   eyebrow?: string;
@@ -18,31 +21,27 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   breadcrumbs,
   actions,
   align = 'left',
-  className = '',
+  className,
 }) => {
   const centered = align === 'center';
 
   return (
-    <header
-      className={`border-b border-nala-border/60 bg-gradient-to-b from-nala-cream/80 to-nala-ivory ${className}`}
-    >
-      <div className="container-nala page-shell pb-10 sm:pb-14">
+    <header className={cn('border-b border-nala-border/70 bg-nala-soft', className)}>
+      <Container className="pb-12 pt-10 md:pb-16 md:pt-14">
         {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
-        <div className={centered ? 'mx-auto max-w-content text-center' : 'max-w-content'}>
-          {eyebrow && <p className="section-label mb-3">{eyebrow}</p>}
-          <h1 className="font-display text-display-lg text-balance text-nala-charcoal">{title}</h1>
+        <div className={cn(centered ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl')}>
+          {eyebrow && <p className={cn(tokens.type.overline, 'mb-3')}>{eyebrow}</p>}
+          <h1 className={cn(tokens.type.h1, 'text-balance')}>{title}</h1>
           {description && (
-            <p className={`prose-nala mt-4 ${centered ? 'mx-auto' : ''}`}>{description}</p>
+            <p className={cn(tokens.type.lead, 'mt-4', centered && 'mx-auto')}>{description}</p>
           )}
           {actions && (
-            <div
-              className={`mt-8 flex flex-wrap gap-3 ${centered ? 'justify-center' : ''}`}
-            >
+            <div className={cn('mt-8 flex flex-wrap gap-3', centered && 'justify-center')}>
               {actions}
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </header>
   );
 };

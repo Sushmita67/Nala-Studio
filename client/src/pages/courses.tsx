@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import CoursesSection from '../components/CoursesSection';
+import Button from '../components/ui/Button';
 
 const CoursesPage: React.FC = () => {
   return (
@@ -14,11 +14,7 @@ const CoursesPage: React.FC = () => {
           { label: 'Home', to: '/' },
           { label: 'Academy' },
         ]}
-        actions={
-          <Link to="/contact" className="btn-primary">
-            Enquire to enroll
-          </Link>
-        }
+        actions={<Button to="/contact">Enquire to enroll</Button>}
       />
       <CoursesSection />
     </>

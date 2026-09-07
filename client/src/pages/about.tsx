@@ -1,9 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import AboutSection from '../components/AboutSection';
 import WhyNalaSection from '../components/WhyNalaSection';
 import TeamSection from '../components/TeamSection';
+import Button from '../components/ui/Button';
 
 const AboutPage: React.FC = () => {
   return (
@@ -18,12 +18,10 @@ const AboutPage: React.FC = () => {
         ]}
         actions={
           <>
-            <Link to="/book" className="btn-primary">
-              Book appointment
-            </Link>
-            <Link to="/courses" className="btn-secondary">
+            <Button to="/book">Book appointment</Button>
+            <Button to="/courses" variant="secondary">
               View academy
-            </Link>
+            </Button>
           </>
         }
       />
