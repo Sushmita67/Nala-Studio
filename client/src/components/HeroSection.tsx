@@ -76,7 +76,7 @@ const HeroSection: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
         >
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.22em] text-nala-blush drop-shadow-sm">
+          <p className="mb-3 text-sm font-medium uppercase tracking-[0.22em] text-nala-blush drop-shadow-sm">
             Kathmandu · Beauty studio
           </p>
           <h1 className="font-display text-4xl font-medium leading-[0.95] tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)] sm:text-5xl md:text-6xl lg:text-[4.5rem]">

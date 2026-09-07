@@ -19,9 +19,9 @@ const variants: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
-  sm: 'text-xs px-4 py-2 rounded-full tracking-[0.1em]',
-  md: 'text-xs px-5 py-2.5 rounded-full tracking-[0.12em]',
-  lg: 'text-xs px-7 py-3 rounded-full tracking-[0.12em]',
+  sm: 'text-sm px-4 py-2 rounded-full tracking-[0.1em]',
+  md: 'text-sm px-5 py-2.5 rounded-full tracking-[0.12em]',
+  lg: 'text-sm px-7 py-3 rounded-full tracking-[0.12em]',
 };
 
 interface ButtonProps {

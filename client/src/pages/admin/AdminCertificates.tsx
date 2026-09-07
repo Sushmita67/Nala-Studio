@@ -129,7 +129,7 @@ const AdminCertificates: React.FC = () => {
       <div>
         <h1 className="font-display text-3xl">Certificates</h1>
         <p className="mt-1 text-sm text-nala-muted">
-          Fills <code className="text-xs">default-certificate-template-v1.pdf</code> with student
+          Fills <code className="text-sm">default-certificate-template-v1.pdf</code> with student
           data
         </p>
       </div>
@@ -224,17 +224,17 @@ const AdminCertificates: React.FC = () => {
               onChange={(e) => setForm({ ...form, dateAwarded: e.target.value })}
             />
           </div>
-          <p className="text-xs text-nala-muted">
+          <p className="text-sm text-nala-muted">
             Next certificate ID: <strong>{previewNumber}</strong>
           </p>
           <div className="flex flex-wrap gap-2 pt-2">
-            <button type="submit" className="btn-secondary !text-xs">
+            <button type="submit" className="btn-secondary !text-sm">
               <Eye size={14} />
               Preview PDF
             </button>
             <button
               type="button"
-              className="btn-primary !text-xs"
+              className="btn-primary !text-sm"
               onClick={onSave}
               disabled={saving}
             >
@@ -243,7 +243,7 @@ const AdminCertificates: React.FC = () => {
             {preview && (
               <button
                 type="button"
-                className="btn-secondary !text-xs"
+                className="btn-secondary !text-sm"
                 onClick={() => void downloadCertificatePdf(draft)}
               >
                 <Download size={14} />
@@ -278,7 +278,7 @@ const AdminCertificates: React.FC = () => {
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
+            <thead className="bg-nala-soft text-sm uppercase tracking-[0.12em] text-nala-muted">
               <tr>
                 <th className="px-4 py-3">Number</th>
                 <th className="px-4 py-3">Student</th>
@@ -298,7 +298,7 @@ const AdminCertificates: React.FC = () => {
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em]"
+                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-sm font-medium uppercase tracking-[0.08em]"
                         onClick={() => void downloadCertificatePdf(c)}
                       >
                         <Download size={12} />
@@ -306,7 +306,7 @@ const AdminCertificates: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em]"
+                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-sm font-medium uppercase tracking-[0.08em]"
                         onClick={() => {
                           setForm({
                             studentId: c.studentId || '',
@@ -326,7 +326,7 @@ const AdminCertificates: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em] text-red-800"
+                        className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-sm font-medium uppercase tracking-[0.08em] text-red-800"
                         onClick={() => {
                           if (confirm('Delete certificate?')) void deleteCertificate(c.id);
                         }}

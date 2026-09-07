@@ -218,7 +218,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ showToast }) => {
                               </p>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
+                              <span className={`px-2 py-1 rounded-full text-sm font-medium ${getBookingStatusColor(booking.status)}`}>
                                 {getBookingStatusIcon(booking.status)}
                               </span>
                               <span className="text-sm font-medium text-gray-900 dark:text-white">
@@ -277,7 +277,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ showToast }) => {
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                               {service?.name}
                             </h3>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
+                            <span className={`px-2 py-1 rounded-full text-sm font-medium ${getBookingStatusColor(booking.status)}`}>
                               {booking.status}
                             </span>
                           </div>
@@ -431,7 +431,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ showToast }) => {
                         <span className="text-sm">{service.duration} min</span>
                       </div>
                       {service.popular && (
-                        <span className="px-2 py-1 bg-pink-100 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400 rounded-full text-xs font-medium">
+                        <span className="px-2 py-1 bg-pink-100 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400 rounded-full text-sm font-medium">
                           Popular
                         </span>
                       )}

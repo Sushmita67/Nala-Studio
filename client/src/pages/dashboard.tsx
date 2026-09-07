@@ -151,7 +151,7 @@ const Dashboard: React.FC<DashboardProps> = ({ showToast }) => {
                   title={tab.name}
                 >
                   <span className="mr-1 sm:mr-2">{tab.icon}</span>
-                  <span className="text-xs sm:text-sm lg:text-base font-medium">{tab.name}</span>
+                  <span className="text-sm sm:text-sm lg:text-base font-medium">{tab.name}</span>
                 </button>
               ))}
             </div>
@@ -267,7 +267,7 @@ const Dashboard: React.FC<DashboardProps> = ({ showToast }) => {
                               </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getBookingStatusColor(booking.status)}`}>
                                 {booking.status}
                               </span>
                               <span className="text-sm font-medium text-gray-900 dark:text-white">
@@ -315,7 +315,7 @@ const Dashboard: React.FC<DashboardProps> = ({ showToast }) => {
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                   {service?.name}
                                 </h3>
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getBookingStatusColor(booking.status)}`}>
                                   {booking.status}
                                 </span>
                               </div>
@@ -559,7 +559,7 @@ const Dashboard: React.FC<DashboardProps> = ({ showToast }) => {
                             <p className="font-semibold text-gray-900 dark:text-white">
                               Rs. {booking.totalPrice}
                             </p>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
+                            <span className={`px-2 py-1 rounded-full text-sm font-medium ${getBookingStatusColor(booking.status)}`}>
                               {booking.status}
                             </span>
                           </div>

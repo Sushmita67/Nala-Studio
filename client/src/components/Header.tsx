@@ -41,7 +41,7 @@ const Header: React.FC = () => {
             </div>
             <div className="mx-1 text-gray-700">
               <h3 className="uppercase tracking-[0.15em] font-medium">Nala Studio</h3>
-              <p className="text-xs italic">Beauty & Wellness</p>
+              <p className="text-sm italic">Beauty & Wellness</p>
             </div>
           </Link>
 

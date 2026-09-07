@@ -42,7 +42,7 @@ const AdminTestimonials: React.FC = () => {
           <article key={item.id} className="rounded-md border border-nala-border bg-nala-ivory p-5">
             <p className="font-display text-xl leading-relaxed">“{item.text}”</p>
             <p className="mt-3 text-sm font-medium">{item.name}</p>
-            <p className="text-xs text-nala-muted">
+            <p className="text-sm text-nala-muted">
               {item.rating}/5 · {item.source} · {item.date}
               {!item.visible ? ' · Hidden' : ''}
               {item.featured ? ' · Featured' : ''}

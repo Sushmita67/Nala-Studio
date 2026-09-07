@@ -40,13 +40,13 @@ const CoursesSection: React.FC = () => {
                   </p>
                   <dl className="mt-6 flex flex-wrap gap-8 text-sm">
                     <div>
-                      <dt className="text-xs uppercase tracking-[0.14em] text-nala-muted">
+                      <dt className="text-sm uppercase tracking-[0.14em] text-nala-muted">
                         Duration
                       </dt>
                       <dd className="mt-1 font-medium text-nala-charcoal">{course.duration}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-[0.14em] text-nala-muted">
+                      <dt className="text-sm uppercase tracking-[0.14em] text-nala-muted">
                         Enrollment
                       </dt>
                       <dd className="mt-1 font-medium text-nala-charcoal">Contact for pricing</dd>

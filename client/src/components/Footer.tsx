@@ -118,7 +118,7 @@ const Footer: React.FC = () => {
       </Container>
 
       <div className="border-t border-white/10">
-        <Container className="flex flex-col items-start justify-between gap-2 py-5 text-xs tracking-wide text-nala-beige/50 sm:flex-row sm:items-center">
+        <Container className="flex flex-col items-start justify-between gap-2 py-5 text-sm tracking-wide text-nala-beige/50 sm:flex-row sm:items-center">
           <p>© {year} NALA Studio. All rights reserved.</p>
           <p>nalastudio.com.np</p>
         </Container>

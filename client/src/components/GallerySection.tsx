@@ -72,7 +72,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                     aria-selected={selected}
                     onClick={() => setFilter(item.id as 'all' | GalleryCategory)}
                     className={cn(
-                      'shrink-0 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.12em] transition-all',
+                      'shrink-0 px-4 py-2.5 text-sm font-medium uppercase tracking-[0.12em] transition-all',
                       tokens.focus,
                       selected
                         ? 'bg-nala-charcoal text-nala-ivory'

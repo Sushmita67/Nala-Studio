@@ -29,7 +29,7 @@ const ConsentBanner: React.FC = () => {
       <div className="container-nala flex flex-col items-start justify-between gap-4 py-4 md:flex-row md:items-center">
         <div className="max-w-xl">
           <h2 className="text-sm font-medium text-nala-charcoal">Privacy & cookies</h2>
-          <p className="mt-1 text-xs leading-relaxed text-nala-muted">
+          <p className="mt-1 text-sm leading-relaxed text-nala-muted">
             We use cookies to improve your experience on the NALA Studio website.
           </p>
         </div>

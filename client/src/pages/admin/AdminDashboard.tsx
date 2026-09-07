@@ -4,7 +4,7 @@ import { useStudio } from '../../context/StudioContext';
 
 const Stat = ({ label, value }: { label: string; value: number | string }) => (
   <div className="rounded-md border border-nala-border bg-nala-ivory p-5">
-    <p className="text-xs uppercase tracking-[0.16em] text-nala-muted">{label}</p>
+    <p className="text-sm uppercase tracking-[0.16em] text-nala-muted">{label}</p>
     <p className="mt-2 font-display text-3xl text-nala-charcoal">{value}</p>
   </div>
 );
@@ -71,13 +71,13 @@ const AdminDashboard: React.FC = () => {
         <div className="rounded-md border border-nala-border bg-nala-ivory">
           <div className="flex items-center justify-between border-b border-nala-border px-5 py-4">
             <h2 className="font-display text-xl">Today</h2>
-            <Link to="/admin/bookings" className="text-xs uppercase tracking-[0.14em] text-nala-rose">
+            <Link to="/admin/bookings" className="text-sm uppercase tracking-[0.14em] text-nala-rose">
               Manage
             </Link>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-sm uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-5 py-3">Time</th>
                   <th className="px-5 py-3">Client</th>
@@ -112,13 +112,13 @@ const AdminDashboard: React.FC = () => {
         <div className="rounded-md border border-nala-border bg-nala-ivory">
           <div className="flex items-center justify-between border-b border-nala-border px-5 py-4">
             <h2 className="font-display text-xl">Upcoming week</h2>
-            <Link to="/admin/bookings" className="text-xs uppercase tracking-[0.14em] text-nala-rose">
+            <Link to="/admin/bookings" className="text-sm uppercase tracking-[0.14em] text-nala-rose">
               View all
             </Link>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-sm uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-5 py-3">When</th>
                   <th className="px-5 py-3">Client</th>

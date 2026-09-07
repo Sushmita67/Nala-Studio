@@ -85,7 +85,7 @@ const AdminContent: React.FC = () => {
       <form onSubmit={onSave} className="space-y-8">
         <section className="rounded-xl border border-nala-border bg-nala-ivory p-5">
           <h2 className="mb-1 font-display text-xl">Home / Hero</h2>
-          <p className="mb-4 text-xs text-nala-muted">
+          <p className="mb-4 text-sm text-nala-muted">
             Copy sits over the rotating slider. Manage slides below.
           </p>
           <div className="grid gap-3 md:grid-cols-2">
@@ -126,7 +126,7 @@ const AdminContent: React.FC = () => {
           <div className="mt-6 border-t border-nala-border/70 pt-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-display text-lg">Hero slider images</h3>
-              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-nala-charcoal px-3 py-1.5 text-xs font-medium uppercase tracking-[0.1em] text-white">
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-nala-charcoal px-3 py-1.5 text-sm font-medium uppercase tracking-[0.1em] text-white">
                 <Plus size={12} />
                 Add slide
                 <input
@@ -161,7 +161,7 @@ const AdminContent: React.FC = () => {
                       onChange={(e) => updateSlide(slide.id, { alt: e.target.value })}
                       placeholder="Alt text"
                     />
-                    <label className="flex items-center gap-2 text-xs text-nala-muted">
+                    <label className="flex items-center gap-2 text-sm text-nala-muted">
                       <input
                         type="checkbox"
                         checked={slide.active}
@@ -198,12 +198,12 @@ const AdminContent: React.FC = () => {
                       <Trash2 size={14} />
                     </button>
                   </div>
-                  <label className="text-xs uppercase tracking-[0.1em] text-nala-muted sm:w-24">
+                  <label className="text-sm uppercase tracking-[0.1em] text-nala-muted sm:w-24">
                     Replace
                     <input
                       type="file"
                       accept="image/*"
-                      className="mt-1 block w-full text-xs"
+                      className="mt-1 block w-full text-sm"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;

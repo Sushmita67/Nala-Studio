@@ -51,7 +51,7 @@ const ReviewsSection: React.FC = () => {
                     <cite className="not-italic text-sm font-medium text-nala-charcoal">
                       {review.name}
                     </cite>
-                    <p className="mt-0.5 text-xs text-nala-muted">
+                    <p className="mt-0.5 text-sm text-nala-muted">
                       {review.source || 'Google'} · {review.date}
                     </p>
                   </footer>

@@ -45,7 +45,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
             {service.description}
           </p>
-          <div className="flex items-center justify-center mt-2 space-x-4 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center justify-center mt-2 space-x-4 text-sm text-gray-500 dark:text-gray-400">
             <span>⭐ {service.duration} min</span>
             <span>💅 {service.category}</span>
           </div>
@@ -57,7 +57,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             ${service.price}
           </span>
           <button 
-            className={`px-2 py-1 text-xs font-semibold uppercase transition-colors duration-300 transform rounded ${
+            className={`px-2 py-1 text-sm font-semibold uppercase transition-colors duration-300 transform rounded ${
               isSelected 
                 ? 'bg-nala-primary text-white hover:bg-nala-primary/80' 
                 : 'bg-gray-800 text-white hover:bg-gray-700 dark:hover:bg-gray-600'
@@ -125,10 +125,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                         {addon.name}
                       </span>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {addon.description}
                         </span>
-                        <span className="text-xs font-medium text-nala-primary">
+                        <span className="text-sm font-medium text-nala-primary">
                           +${addon.price}
                         </span>
                       </div>

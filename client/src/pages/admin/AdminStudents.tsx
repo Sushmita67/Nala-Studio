@@ -109,7 +109,7 @@ const AdminStudents: React.FC = () => {
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`rounded-sm px-4 py-2 text-xs uppercase tracking-[0.14em] ${
+            className={`rounded-sm px-4 py-2 text-sm uppercase tracking-[0.14em] ${
               tab === t
                 ? 'bg-nala-charcoal text-nala-ivory'
                 : 'bg-nala-mist text-nala-muted hover:text-nala-charcoal'
@@ -134,7 +134,7 @@ const AdminStudents: React.FC = () => {
             </div>
             <div className="overflow-x-auto rounded-md border border-nala-border bg-nala-ivory">
               <table className="min-w-full text-left text-sm">
-                <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
+                <thead className="bg-nala-soft text-sm uppercase tracking-[0.12em] text-nala-muted">
                   <tr>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Contact</th>
@@ -206,7 +206,7 @@ const AdminStudents: React.FC = () => {
                   <li key={h.id} className="border-b border-nala-border/60 pb-3 text-sm">
                     <p className="font-medium">{h.className}</p>
                     <p className="text-nala-muted">{h.courseName}</p>
-                    <p className="mt-1 text-xs uppercase tracking-wider text-nala-rose">
+                    <p className="mt-1 text-sm uppercase tracking-wider text-nala-rose">
                       {h.status} · {h.progress}%
                     </p>
                   </li>
@@ -236,7 +236,7 @@ const AdminStudents: React.FC = () => {
           </div>
           <div className="overflow-x-auto rounded-md border border-nala-border bg-nala-ivory">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-sm uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-4 py-3">Class</th>
                   <th className="px-4 py-3">Dates</th>
@@ -250,7 +250,7 @@ const AdminStudents: React.FC = () => {
                   <tr key={c.id} className="border-t border-nala-border/70">
                     <td className="px-4 py-3">
                       <p className="font-medium">{c.name}</p>
-                      <p className="text-xs text-nala-muted">
+                      <p className="text-sm text-nala-muted">
                         {courses.find((x) => x.id === c.courseId)?.name}
                       </p>
                     </td>
@@ -365,7 +365,7 @@ const AdminStudents: React.FC = () => {
 
           <div className="overflow-x-auto rounded-md border border-nala-border bg-nala-ivory">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-sm uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-4 py-3">Student</th>
                   <th className="px-4 py-3">Class</th>

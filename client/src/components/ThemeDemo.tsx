@@ -115,22 +115,22 @@ const ThemeDemo: React.FC = () => {
             <div className="text-center">
               <div className="w-16 h-16 bg-nala-primary rounded-lg mx-auto mb-2"></div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">Primary</p>
-              <p className="text-xs text-gray-600 dark:text-gray-300">#F8BBD9</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">#F8BBD9</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-nala-secondary rounded-lg mx-auto mb-2"></div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">Secondary</p>
-              <p className="text-xs text-gray-600 dark:text-gray-300">#f7f7e8</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">#f7f7e8</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-nala-accent rounded-lg mx-auto mb-2"></div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">Accent</p>
-              <p className="text-xs text-gray-600 dark:text-gray-300">#fd8a8a</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">#fd8a8a</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-nala-cream rounded-lg mx-auto mb-2"></div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">Cream</p>
-              <p className="text-xs text-gray-600 dark:text-gray-300">#fff9e9</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">#fff9e9</p>
             </div>
           </div>
         </div>

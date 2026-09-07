@@ -61,7 +61,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
               group.items.length > 0 && (
                 <div key={group.id}>
                   <FadeIn>
-                    <h3 className="mb-6 text-xs font-medium uppercase tracking-[0.16em] text-nala-brown">
+                    <h3 className="mb-6 text-sm font-medium uppercase tracking-[0.16em] text-nala-brown">
                       {group.label}
                     </h3>
                   </FadeIn>
@@ -90,7 +90,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
                               <p className={cn(tokens.type.body, 'mt-2 text-sm')}>
                                 {service.description}
                               </p>
-                              <div className="mt-4 flex items-center justify-between gap-3 text-xs text-nala-muted">
+                              <div className="mt-4 flex items-center justify-between gap-3 text-sm text-nala-muted">
                                 <span className="uppercase tracking-[0.12em]">
                                   Enquire for pricing
                                 </span>

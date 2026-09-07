@@ -110,7 +110,7 @@ const AdminLogin: React.FC = () => {
           </div>
         )}
 
-        <p className="mt-6 text-center text-xs text-nala-muted">
+        <p className="mt-6 text-center text-sm text-nala-muted">
           <Link to="/" className="underline-offset-2 hover:underline">
             ← Back to site
           </Link>

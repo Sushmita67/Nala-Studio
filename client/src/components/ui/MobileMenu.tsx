@@ -107,7 +107,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
 
               {featured.length > 0 && (
                 <div className="mt-6 rounded-2xl border border-nala-border/70 bg-nala-soft/80 p-4">
-                  <p className="font-ui mb-2 text-xs font-medium text-nala-muted">
+                  <p className="font-ui mb-2 text-sm font-medium text-nala-muted">
                     Popular treatments
                   </p>
                   <ul className="space-y-0.5">
@@ -146,7 +146,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
                 <Link
                   to="/admin/login"
                   onClick={onClose}
-                  className="font-ui flex w-full items-center justify-center gap-1.5 py-2 text-xs font-medium text-nala-muted transition hover:text-nala-charcoal"
+                  className="font-ui flex w-full items-center justify-center gap-1.5 py-2 text-sm font-medium text-nala-muted transition hover:text-nala-charcoal"
                 >
                   <Lock size={12} />
                   Admin login

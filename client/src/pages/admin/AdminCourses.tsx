@@ -52,7 +52,7 @@ const AdminCourses: React.FC = () => {
               <div className="min-w-0 flex-1">
                 <h2 className="font-display text-2xl">{course.name}</h2>
                 <p className="mt-1 text-sm text-nala-muted line-clamp-2">{course.description}</p>
-                <p className="mt-2 text-xs text-nala-muted">
+                <p className="mt-2 text-sm text-nala-muted">
                   {course.duration} · {course.price}
                 </p>
               </div>

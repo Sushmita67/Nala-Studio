@@ -61,7 +61,7 @@ const AdminGallery: React.FC = () => {
               <img src={item.src} alt={item.caption} className="aspect-square w-full object-cover" />
               <div className="space-y-2 p-3 text-sm">
                 <p className="font-medium">{item.caption || 'Untitled'}</p>
-                <p className="text-xs uppercase tracking-[0.12em] text-nala-muted">
+                <p className="text-sm uppercase tracking-[0.12em] text-nala-muted">
                   {item.category}
                   {item.featured ? ' · Featured' : ''}
                 </p>

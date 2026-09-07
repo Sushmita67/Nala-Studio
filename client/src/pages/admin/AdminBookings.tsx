@@ -81,7 +81,7 @@ const AdminBookings: React.FC = () => {
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="overflow-x-auto rounded-md border border-nala-border bg-nala-ivory lg:col-span-3">
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
+            <thead className="bg-nala-soft text-sm uppercase tracking-[0.12em] text-nala-muted">
               <tr>
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Service</th>
@@ -100,7 +100,7 @@ const AdminBookings: React.FC = () => {
                 >
                   <td className="px-4 py-3">
                     <div className="font-medium">{b.customerName}</div>
-                    <div className="text-xs text-nala-muted">{b.phone}</div>
+                    <div className="text-sm text-nala-muted">{b.phone}</div>
                   </td>
                   <td className="px-4 py-3">{b.serviceName}</td>
                   <td className="px-4 py-3">
@@ -109,7 +109,7 @@ const AdminBookings: React.FC = () => {
                     {b.time}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2.5 py-1 text-xs capitalize ${statusClass[b.status]}`}>
+                    <span className={`rounded-full px-2.5 py-1 text-sm capitalize ${statusClass[b.status]}`}>
                       {b.status}
                     </span>
                   </td>

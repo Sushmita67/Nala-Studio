@@ -102,7 +102,7 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onChange })
         {current.caption && (
           <p className="mt-4 text-center text-sm text-nala-cream">{current.caption}</p>
         )}
-        <p className="mt-2 text-center text-xs text-white/50">
+        <p className="mt-2 text-center text-sm text-white/50">
           {index + 1} / {images.length}
         </p>
       </div>

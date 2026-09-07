@@ -44,7 +44,7 @@ const AdminSettings: React.FC = () => {
             value={form.formspreeFormId}
             onChange={(e) => setForm({ ...form, formspreeFormId: e.target.value })}
           />
-          <p className="mt-1 text-xs text-nala-muted">
+          <p className="mt-1 text-sm text-nala-muted">
             Booking notifications are sent through this Formspree endpoint.
           </p>
         </div>
