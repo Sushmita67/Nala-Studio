@@ -74,7 +74,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ onNavigate }) => {
                   'border-t border-nala-border/70 pt-4 sm:border-l sm:border-t-0 sm:pt-0 sm:pl-4 md:pl-5'
               )}
             >
-              <p className="font-ui mb-3 text-[10px] font-medium tracking-[-0.01em] text-nala-muted">
+              <p className="font-ui mb-3 text-xs font-medium tracking-[-0.01em] text-nala-muted">
                 {col.label}
               </p>
               <ul className="space-y-0">
@@ -91,7 +91,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ onNavigate }) => {
                       <span className="font-display block text-[0.95rem] leading-snug text-nala-charcoal transition-colors group-hover:text-nala-brown">
                         {service.name}
                       </span>
-                      <span className="font-ui mt-0.5 block text-[11px] leading-snug text-nala-muted">
+                      <span className="font-ui mt-0.5 block text-xs leading-snug text-nala-muted">
                         {service.description}
                       </span>
                     </Link>
@@ -110,7 +110,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ onNavigate }) => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-nala-charcoal/90 via-nala-charcoal/35 to-nala-charcoal/20" />
           <div className="relative flex min-h-[200px] flex-col justify-end p-5 lg:min-h-full">
-            <p className="font-ui mb-2 text-[10px] font-medium text-white/55">Courses</p>
+            <p className="font-ui mb-2 text-xs font-medium text-white/55">Courses</p>
             <ul className="mb-4 space-y-1.5">
               {courseItems.map((c) => (
                 <li key={c.id}>
@@ -127,7 +127,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ onNavigate }) => {
             <Link
               to="/gallery"
               onClick={onNavigate}
-              className="font-ui inline-flex w-fit items-center gap-1.5 rounded-full border border-white/45 px-3.5 py-1.5 text-[11px] font-medium text-white transition hover:bg-white hover:text-nala-charcoal"
+              className="font-ui inline-flex w-fit items-center gap-1.5 rounded-full border border-white/45 px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-white hover:text-nala-charcoal"
             >
               View gallery
               <ArrowRight size={12} strokeWidth={2} />
@@ -137,13 +137,13 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ onNavigate }) => {
       </div>
 
       <div className="flex items-center justify-between gap-4 border-t border-nala-border/70 px-6 py-3 sm:px-7">
-        <p className="font-ui text-[11px] text-nala-muted">
+        <p className="font-ui text-xs text-nala-muted">
           {SERVICE_CATEGORY_OPTIONS.length} categories · enquire for pricing
         </p>
         <Link
           to="/services"
           onClick={onNavigate}
-          className="font-ui inline-flex items-center gap-1.5 text-[11px] font-medium text-nala-charcoal transition hover:text-nala-brown"
+          className="font-ui inline-flex items-center gap-1.5 text-xs font-medium text-nala-charcoal transition hover:text-nala-brown"
         >
           View all services
           <ArrowRight size={12} />

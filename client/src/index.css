@@ -107,13 +107,7 @@
 
   html {
     scroll-behavior: smooth;
-    font-size: 14px;
-  }
-
-  @media (min-width: 1024px) {
-    html {
-      font-size: 14px;
-    }
+    font-size: 16px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -179,19 +173,19 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-nala-charcoal px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-nala-ivory transition-all duration-200 hover:bg-nala-brown active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-nala-charcoal px-5 py-2.5 text-xs font-medium uppercase tracking-[0.12em] text-nala-ivory transition-all duration-200 hover:bg-nala-brown active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2 disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-nala-charcoal/25 bg-transparent px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-nala-charcoal transition-all duration-200 hover:border-nala-charcoal hover:bg-nala-charcoal hover:text-nala-ivory active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-nala-charcoal/25 bg-transparent px-5 py-2.5 text-xs font-medium uppercase tracking-[0.12em] text-nala-charcoal transition-all duration-200 hover:border-nala-charcoal hover:bg-nala-charcoal hover:text-nala-ivory active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nala-blush focus-visible:ring-offset-2;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 text-[11px] font-medium uppercase tracking-[0.1em] text-nala-muted transition-colors hover:text-nala-charcoal;
+    @apply inline-flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-[0.1em] text-nala-muted transition-colors hover:text-nala-charcoal;
   }
 
   .section-label {
-    @apply text-[10px] font-medium uppercase tracking-[0.16em] text-nala-rose;
+    @apply text-xs font-medium uppercase tracking-[0.16em] text-nala-rose;
   }
 
   .section-title {
@@ -203,7 +197,7 @@
   }
 
   .label-nala {
-    @apply mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-nala-muted;
+    @apply mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-nala-muted;
   }
 
   .card-nala {

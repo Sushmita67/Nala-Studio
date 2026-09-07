@@ -45,7 +45,7 @@ const AdminLayout: React.FC = () => {
         <Link to="/" className="inline-block">
           <Logo size="md" />
         </Link>
-        <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-nala-muted">Admin</p>
+        <p className="mt-2 text-xs uppercase tracking-[0.16em] text-nala-muted">Admin</p>
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {links.map((link) => (

@@ -76,7 +76,7 @@ const HeroSection: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
         >
-          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.22em] text-nala-blush drop-shadow-sm">
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.22em] text-nala-blush drop-shadow-sm">
             Kathmandu · Beauty studio
           </p>
           <h1 className="font-display text-4xl font-medium leading-[0.95] tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)] sm:text-5xl md:text-6xl lg:text-[4.5rem]">
@@ -93,7 +93,7 @@ const HeroSection: React.FC = () => {
               to="/book"
               size="lg"
               variant="inverse"
-              className="rounded-full shadow-lg !text-[14px] !font-semibold !normal-case !tracking-[-0.01em]"
+              className="rounded-full shadow-lg !text-sm !font-semibold !normal-case !tracking-[-0.01em]"
             >
               {content.heroCtaPrimary}
               <ArrowRight size={16} />
@@ -102,7 +102,7 @@ const HeroSection: React.FC = () => {
               to="/services"
               size="lg"
               variant="outline"
-              className="rounded-full !border-white/55 !text-[14px] !font-medium !normal-case !tracking-[-0.01em] !text-white hover:!border-white hover:!bg-white hover:!text-nala-charcoal"
+              className="rounded-full !border-white/55 !text-sm !font-medium !normal-case !tracking-[-0.01em] !text-white hover:!border-white hover:!bg-white hover:!text-nala-charcoal"
             >
               {content.heroCtaSecondary}
             </Button>

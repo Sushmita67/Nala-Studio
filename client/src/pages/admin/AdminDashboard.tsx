@@ -4,7 +4,7 @@ import { useStudio } from '../../context/StudioContext';
 
 const Stat = ({ label, value }: { label: string; value: number | string }) => (
   <div className="rounded-md border border-nala-border bg-nala-ivory p-5">
-    <p className="text-[11px] uppercase tracking-[0.16em] text-nala-muted">{label}</p>
+    <p className="text-xs uppercase tracking-[0.16em] text-nala-muted">{label}</p>
     <p className="mt-2 font-display text-3xl text-nala-charcoal">{value}</p>
   </div>
 );
@@ -77,7 +77,7 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-[11px] uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-5 py-3">Time</th>
                   <th className="px-5 py-3">Client</th>
@@ -118,7 +118,7 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-[11px] uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-5 py-3">When</th>
                   <th className="px-5 py-3">Client</th>

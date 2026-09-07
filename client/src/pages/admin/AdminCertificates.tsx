@@ -228,13 +228,13 @@ const AdminCertificates: React.FC = () => {
             Next certificate ID: <strong>{previewNumber}</strong>
           </p>
           <div className="flex flex-wrap gap-2 pt-2">
-            <button type="submit" className="btn-secondary !text-[10px]">
+            <button type="submit" className="btn-secondary !text-xs">
               <Eye size={14} />
               Preview PDF
             </button>
             <button
               type="button"
-              className="btn-primary !text-[10px]"
+              className="btn-primary !text-xs"
               onClick={onSave}
               disabled={saving}
             >
@@ -243,7 +243,7 @@ const AdminCertificates: React.FC = () => {
             {preview && (
               <button
                 type="button"
-                className="btn-secondary !text-[10px]"
+                className="btn-secondary !text-xs"
                 onClick={() => void downloadCertificatePdf(draft)}
               >
                 <Download size={14} />
@@ -278,7 +278,7 @@ const AdminCertificates: React.FC = () => {
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-nala-soft text-[10px] uppercase tracking-[0.12em] text-nala-muted">
+            <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
               <tr>
                 <th className="px-4 py-3">Number</th>
                 <th className="px-4 py-3">Student</th>
@@ -298,7 +298,7 @@ const AdminCertificates: React.FC = () => {
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em]"
+                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em]"
                         onClick={() => void downloadCertificatePdf(c)}
                       >
                         <Download size={12} />
@@ -306,7 +306,7 @@ const AdminCertificates: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em]"
+                        className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em]"
                         onClick={() => {
                           setForm({
                             studentId: c.studentId || '',
@@ -326,7 +326,7 @@ const AdminCertificates: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-red-800"
+                        className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em] text-red-800"
                         onClick={() => {
                           if (confirm('Delete certificate?')) void deleteCertificate(c.id);
                         }}

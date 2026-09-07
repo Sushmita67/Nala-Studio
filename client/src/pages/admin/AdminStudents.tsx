@@ -134,7 +134,7 @@ const AdminStudents: React.FC = () => {
             </div>
             <div className="overflow-x-auto rounded-md border border-nala-border bg-nala-ivory">
               <table className="min-w-full text-left text-sm">
-                <thead className="bg-nala-soft text-[11px] uppercase tracking-[0.12em] text-nala-muted">
+                <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
                   <tr>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Contact</th>
@@ -236,7 +236,7 @@ const AdminStudents: React.FC = () => {
           </div>
           <div className="overflow-x-auto rounded-md border border-nala-border bg-nala-ivory">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-[11px] uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-4 py-3">Class</th>
                   <th className="px-4 py-3">Dates</th>
@@ -365,7 +365,7 @@ const AdminStudents: React.FC = () => {
 
           <div className="overflow-x-auto rounded-md border border-nala-border bg-nala-ivory">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-nala-soft text-[11px] uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="bg-nala-soft text-xs uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-4 py-3">Student</th>
                   <th className="px-4 py-3">Class</th>

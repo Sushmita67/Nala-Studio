@@ -260,7 +260,7 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
         <div className="mb-10">
           <div className="mb-3 flex items-end justify-between gap-4">
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-nala-muted">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-nala-muted">
                 Step {Math.min(stepIndex + 1, stepLabels.length)} of {stepLabels.length}
               </p>
               <p className="mt-1 font-display text-xl text-nala-charcoal sm:text-2xl">
@@ -297,7 +297,7 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
                   }`}
                 />
                 <span
-                  className={`truncate text-[10px] uppercase tracking-[0.1em] ${
+                  className={`truncate text-xs uppercase tracking-[0.1em] ${
                     i === stepIndex
                       ? 'font-medium text-nala-charcoal'
                       : i < stepIndex
@@ -451,7 +451,7 @@ const Booking: React.FC<BookingProps> = ({ showToast }) => {
                     <ChevronRight className="h-5 w-5" />
                   </button>
                 </div>
-                <div className="grid grid-cols-7 gap-1 text-center text-[11px] uppercase tracking-wider text-nala-muted">
+                <div className="grid grid-cols-7 gap-1 text-center text-xs uppercase tracking-wider text-nala-muted">
                   {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
                     <div key={d} className="py-1">
                       {d}

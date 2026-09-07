@@ -105,7 +105,7 @@ const Navbar: React.FC = () => {
                   })
                 }
                 className={cn(
-                  'font-ui inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-medium tracking-[-0.01em] text-nala-charcoal/70 transition-all duration-200 hover:text-nala-charcoal',
+                  'font-ui inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium tracking-[-0.01em] text-nala-charcoal/70 transition-all duration-200 hover:text-nala-charcoal',
                   (servicesOpen || servicesActive) &&
                     'border border-nala-charcoal/25 text-nala-charcoal'
                 )}
@@ -128,7 +128,7 @@ const Navbar: React.FC = () => {
                 onMouseEnter={closeServicesNow}
                 className={({ isActive }) =>
                   cn(
-                    'font-ui rounded-full px-3 py-1.5 text-[11px] font-medium tracking-[-0.01em] transition-colors duration-200',
+                    'font-ui rounded-full px-3 py-1.5 text-xs font-medium tracking-[-0.01em] transition-colors duration-200',
                     isActive
                       ? 'text-nala-charcoal'
                       : 'text-nala-charcoal/55 hover:text-nala-charcoal'
@@ -146,7 +146,7 @@ const Navbar: React.FC = () => {
           >
             <Link
               to="/admin/login"
-              className="font-ui hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium text-nala-muted transition hover:text-nala-charcoal lg:inline-flex"
+              className="font-ui hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-nala-muted transition hover:text-nala-charcoal lg:inline-flex"
               aria-label="Admin login"
               title="Studio admin"
             >
@@ -155,14 +155,14 @@ const Navbar: React.FC = () => {
             </Link>
             <Link
               to="/contact"
-              className="font-ui hidden items-center gap-1.5 rounded-full border border-nala-charcoal/20 px-3 py-1.5 text-[11px] font-medium text-nala-charcoal transition hover:border-nala-charcoal/40 hover:bg-nala-mist/60 md:inline-flex"
+              className="font-ui hidden items-center gap-1.5 rounded-full border border-nala-charcoal/20 px-3 py-1.5 text-xs font-medium text-nala-charcoal transition hover:border-nala-charcoal/40 hover:bg-nala-mist/60 md:inline-flex"
             >
               <Mail size={12} strokeWidth={2} />
               Contact
             </Link>
             <Link
               to="/book"
-              className="font-ui group hidden items-center justify-center gap-1.5 rounded-full bg-nala-charcoal px-3.5 py-1.5 text-[11px] font-semibold tracking-[-0.01em] text-white transition hover:bg-nala-brown sm:inline-flex"
+              className="font-ui group hidden items-center justify-center gap-1.5 rounded-full bg-nala-charcoal px-3.5 py-1.5 text-xs font-semibold tracking-[-0.01em] text-white transition hover:bg-nala-brown sm:inline-flex"
             >
               Book now
               <ArrowRight

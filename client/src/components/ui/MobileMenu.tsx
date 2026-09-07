@@ -107,7 +107,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
 
               {featured.length > 0 && (
                 <div className="mt-6 rounded-2xl border border-nala-border/70 bg-nala-soft/80 p-4">
-                  <p className="font-ui mb-2 text-[10px] font-medium text-nala-muted">
+                  <p className="font-ui mb-2 text-xs font-medium text-nala-muted">
                     Popular treatments
                   </p>
                   <ul className="space-y-0.5">
@@ -116,7 +116,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
                         <Link
                           to={`/book?service=${s.id}`}
                           onClick={onClose}
-                          className="font-ui block rounded-lg px-2 py-1.5 text-[12px] text-nala-charcoal/80 transition hover:bg-white hover:text-nala-charcoal"
+                          className="font-ui block rounded-lg px-2 py-1.5 text-sm text-nala-charcoal/80 transition hover:bg-white hover:text-nala-charcoal"
                         >
                           {s.name}
                         </Link>
@@ -130,7 +130,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
                 <Link
                   to="/book"
                   onClick={onClose}
-                  className="font-ui group flex w-full items-center justify-center gap-1.5 rounded-full bg-nala-charcoal px-5 py-3 text-[12px] font-semibold text-white transition hover:bg-nala-brown"
+                  className="font-ui group flex w-full items-center justify-center gap-1.5 rounded-full bg-nala-charcoal px-5 py-3 text-sm font-semibold text-white transition hover:bg-nala-brown"
                 >
                   Book now
                   <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -138,7 +138,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
                 <Link
                   to="/contact"
                   onClick={onClose}
-                  className="font-ui flex w-full items-center justify-center gap-1.5 rounded-full border border-nala-charcoal/20 px-5 py-2.5 text-[12px] font-medium text-nala-charcoal transition hover:bg-nala-mist"
+                  className="font-ui flex w-full items-center justify-center gap-1.5 rounded-full border border-nala-charcoal/20 px-5 py-2.5 text-sm font-medium text-nala-charcoal transition hover:bg-nala-mist"
                 >
                   <Mail size={13} />
                   Contact
@@ -146,13 +146,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
                 <Link
                   to="/admin/login"
                   onClick={onClose}
-                  className="font-ui flex w-full items-center justify-center gap-1.5 py-2 text-[11px] font-medium text-nala-muted transition hover:text-nala-charcoal"
+                  className="font-ui flex w-full items-center justify-center gap-1.5 py-2 text-xs font-medium text-nala-muted transition hover:text-nala-charcoal"
                 >
                   <Lock size={12} />
                   Admin login
                 </Link>
 
-                <div className="space-y-2.5 border-t border-nala-border/70 pt-5 text-[12px] text-nala-muted">
+                <div className="space-y-2.5 border-t border-nala-border/70 pt-5 text-sm text-nala-muted">
                   <a
                     href={`tel:${content.phone}`}
                     className="font-ui flex items-center gap-2.5 transition hover:text-nala-charcoal"

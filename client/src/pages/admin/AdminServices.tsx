@@ -65,7 +65,7 @@ const AdminServices: React.FC = () => {
         </div>
         <button
           type="button"
-          className="btn-primary !text-[10px]"
+          className="btn-primary !text-xs"
           onClick={() => setEditing(emptyService())}
         >
           <Plus size={14} />
@@ -81,7 +81,7 @@ const AdminServices: React.FC = () => {
             setPage(1);
           }}
           className={cn(
-            'rounded-full px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em]',
+            'rounded-full px-3 py-1.5 text-xs font-medium uppercase tracking-[0.1em]',
             categoryFilter === 'all'
               ? 'bg-nala-charcoal text-white'
               : 'border border-nala-border text-nala-muted hover:border-nala-charcoal hover:text-nala-charcoal'
@@ -98,7 +98,7 @@ const AdminServices: React.FC = () => {
               setPage(1);
             }}
             className={cn(
-              'rounded-full px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em]',
+              'rounded-full px-3 py-1.5 text-xs font-medium uppercase tracking-[0.1em]',
               categoryFilter === g.value
                 ? 'bg-nala-charcoal text-white'
                 : 'border border-nala-border text-nala-muted hover:border-nala-charcoal hover:text-nala-charcoal'
@@ -115,13 +115,13 @@ const AdminServices: React.FC = () => {
             <section key={group.value} className="overflow-hidden rounded-xl border border-nala-border bg-nala-ivory">
               <div className="flex items-center justify-between border-b border-nala-border bg-nala-soft px-4 py-3">
                 <h2 className="font-display text-lg text-nala-charcoal">{group.label}</h2>
-                <span className="text-[10px] uppercase tracking-[0.12em] text-nala-muted">
+                <span className="text-xs uppercase tracking-[0.12em] text-nala-muted">
                   {group.items.length} services
                 </span>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="text-[10px] uppercase tracking-[0.12em] text-nala-muted">
+                  <thead className="text-xs uppercase tracking-[0.12em] text-nala-muted">
                     <tr>
                       <th className="px-4 py-2.5">Service</th>
                       <th className="px-4 py-2.5">Price</th>
@@ -153,7 +153,7 @@ const AdminServices: React.FC = () => {
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
-                              className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-nala-charcoal transition hover:border-nala-charcoal"
+                              className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em] text-nala-charcoal transition hover:border-nala-charcoal"
                               onClick={() => setEditing(s)}
                             >
                               <Pencil size={12} />
@@ -161,7 +161,7 @@ const AdminServices: React.FC = () => {
                             </button>
                             <button
                               type="button"
-                              className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-red-800 transition hover:border-red-300"
+                              className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em] text-red-800 transition hover:border-red-300"
                               onClick={() => confirm('Delete service?') && deleteService(s.id)}
                             >
                               <Trash2 size={12} />
@@ -181,13 +181,13 @@ const AdminServices: React.FC = () => {
         <div className="overflow-hidden rounded-xl border border-nala-border bg-nala-ivory">
           <div className="flex items-center justify-between border-b border-nala-border bg-nala-soft px-4 py-3">
             <h2 className="font-display text-lg">{labelFor(categoryFilter)}</h2>
-            <span className="text-[10px] uppercase tracking-[0.12em] text-nala-muted">
+            <span className="text-xs uppercase tracking-[0.12em] text-nala-muted">
               Page {page} of {totalPages}
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="text-[10px] uppercase tracking-[0.12em] text-nala-muted">
+              <thead className="text-xs uppercase tracking-[0.12em] text-nala-muted">
                 <tr>
                   <th className="px-4 py-2.5">Service</th>
                   <th className="px-4 py-2.5">Price</th>
@@ -216,7 +216,7 @@ const AdminServices: React.FC = () => {
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-nala-charcoal transition hover:border-nala-charcoal"
+                          className="inline-flex items-center gap-1 rounded-full border border-nala-border bg-white px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em] text-nala-charcoal transition hover:border-nala-charcoal"
                           onClick={() => setEditing(s)}
                         >
                           <Pencil size={12} />
@@ -224,7 +224,7 @@ const AdminServices: React.FC = () => {
                         </button>
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-red-800 transition hover:border-red-300"
+                          className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium uppercase tracking-[0.08em] text-red-800 transition hover:border-red-300"
                           onClick={() => confirm('Delete service?') && deleteService(s.id)}
                         >
                           <Trash2 size={12} />
@@ -241,7 +241,7 @@ const AdminServices: React.FC = () => {
             <div className="flex items-center justify-between border-t border-nala-border px-4 py-3">
               <button
                 type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-nala-border px-3 py-1.5 text-[10px] uppercase tracking-[0.08em] disabled:opacity-40"
+                className="inline-flex items-center gap-1 rounded-full border border-nala-border px-3 py-1.5 text-xs uppercase tracking-[0.08em] disabled:opacity-40"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
@@ -253,7 +253,7 @@ const AdminServices: React.FC = () => {
               </p>
               <button
                 type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-nala-border px-3 py-1.5 text-[10px] uppercase tracking-[0.08em] disabled:opacity-40"
+                className="inline-flex items-center gap-1 rounded-full border border-nala-border px-3 py-1.5 text-xs uppercase tracking-[0.08em] disabled:opacity-40"
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >

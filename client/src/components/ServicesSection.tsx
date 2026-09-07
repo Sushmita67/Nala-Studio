@@ -61,7 +61,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
               group.items.length > 0 && (
                 <div key={group.id}>
                   <FadeIn>
-                    <h3 className="mb-6 text-[11px] font-medium uppercase tracking-[0.16em] text-nala-brown">
+                    <h3 className="mb-6 text-xs font-medium uppercase tracking-[0.16em] text-nala-brown">
                       {group.label}
                     </h3>
                   </FadeIn>

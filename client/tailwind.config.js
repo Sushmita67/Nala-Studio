@@ -2,23 +2,11 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    // Global one-step-smaller type scale (desktop-first elegance)
-    fontSize: {
-      xs: ['0.6875rem', { lineHeight: '1rem' }], // 11px
-      sm: ['0.75rem', { lineHeight: '1.15rem' }], // 12px
-      base: ['0.8125rem', { lineHeight: '1.4rem' }], // 13px
-      lg: ['0.9375rem', { lineHeight: '1.5rem' }], // 15px
-      xl: ['1.0625rem', { lineHeight: '1.55rem' }], // 17px
-      '2xl': ['1.25rem', { lineHeight: '1.6rem' }], // 20px
-      '3xl': ['1.5rem', { lineHeight: '1.75rem' }], // 24px
-      '4xl': ['1.875rem', { lineHeight: '2.1rem' }], // 30px
-      '5xl': ['2.25rem', { lineHeight: '2.4rem' }], // 36px
-      '6xl': ['2.75rem', { lineHeight: '1.1' }], // 44px
-      '7xl': ['3.25rem', { lineHeight: '1.05' }], // 52px
-      '8xl': ['4rem', { lineHeight: '1' }],
-      '9xl': ['5rem', { lineHeight: '1' }],
-    },
     extend: {
+      // Keep default Tailwind scale; only lift xs to a readable 13px for labels/UI chrome
+      fontSize: {
+        xs: ['0.8125rem', { lineHeight: '1.25rem' }], // 13px
+      },
       fontFamily: {
         display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],

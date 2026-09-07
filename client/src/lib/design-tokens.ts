@@ -37,7 +37,7 @@ export const tokens = {
     lead: 'text-sm md:text-base leading-relaxed text-nala-muted',
     body: 'font-sans text-sm leading-relaxed text-nala-muted',
     overline:
-      'text-[10px] font-medium uppercase tracking-[0.16em] text-nala-rose',
+      'text-xs font-medium uppercase tracking-[0.16em] text-nala-rose',
     label: 'text-xs font-medium text-nala-charcoal tracking-wide',
   },
   surface: {
